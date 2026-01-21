@@ -1,0 +1,57 @@
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic & Static libraries
+*.so
+*.dylib
+*.dll
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables & Pico firmware
+*.exe
+*.out
+*.app
+*.uf2
+*.elf
+*.dis
+*.map
+
+# CMake build system files
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+*.cmake
+
+# Pico SDK tools / debug
+compile_commands.json
+openocd.cfg
+probe.rs
+
+# Build & output directories
+build/
+bin/
+info/
+
+# Editor / IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Misc
+.DS_Store
+Thumbs.db
