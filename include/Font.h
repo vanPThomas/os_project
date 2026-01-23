@@ -124,26 +124,25 @@ namespace Font {
         &missing, &missing, &missing, &missing
     };
     
-    static void draw(uint8_t char_col, uint8_t page, const Glyph& g) {
-        uint8_t start_col = char_col * WIDTH + 2;   // SH1106 offset
-        Oled::cmd(0xB0 + page);
-        Oled::cmd(0x00 + (start_col & 0x0F));
-        Oled::cmd(0x10 + (start_col >> 4));
-        Oled::data(g, WIDTH);
+    static void draw(Oled& display, uint8_t char_col, uint8_t page, const Glyph& g) {
+        uint8_t start_col = char_col * WIDTH + 2; // SH1106 offset
+
+        display.set_cursor(start_col, page);      // assuming you added set_cursor()
+        display.data(g, WIDTH);
     }
 
-    // Optimized print – no memcpy, direct pointer
-    static void print(uint8_t col, uint8_t page, const char* str) {
-        while (*str && col < 21) {          // 128 / 6 ≈ 21 chars
+    static void print(Oled& display, uint8_t col, uint8_t page, const char* str) {
+        while (*str && col < display.get_width() / WIDTH) {
             const Glyph* g = lookup[static_cast<uint8_t>(*str)];
-            draw(col++, page, *g);
+            draw(display, col++, page, *g);
             ++str;
         }
     }
-    static void center_print(uint8_t page, const char* str) {
+
+    static void center_print(Oled& display, uint8_t page, const char* str) {
         uint8_t len = 0;
         while (str[len]) ++len;
-        uint8_t start_col = (21 - len) / 2;   // rough center (21 chars max)
-        print(start_col, page, str);
+        uint8_t start_col = (display.get_width() / WIDTH - len) / 2;
+        print(display, start_col, page, str);
     }
 }

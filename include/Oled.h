@@ -6,61 +6,49 @@
 #include <cstdint>
 #include <cstring>
 
-struct Oled {
-    static constexpr uint8_t ADDR          = 0x3C;  // or 0x3D
-    static constexpr uint     SDA_PIN      = 4;
-    static constexpr uint     SCL_PIN      = 5;
-    static constexpr uint     SPEED_HZ     = 400000;
-    static constexpr uint8_t  SCREEN_COLS  = 132;
-    static constexpr uint8_t  PAGE_COUNT   = 8;
+class Oled {
+public:
+    // Constructor with configurable parameters
+    Oled(i2c_inst_t* i2c_inst = i2c0,
+         uint sda_pin = 4,
+         uint scl_pin = 5,
+         uint speed_hz = 400000,
+         uint8_t addr = 0x3C,
+         uint16_t width = 128,
+         uint16_t height = 64,
+         uint16_t ram_width = 132);  // SH1106 needs 132 columns internally
 
-    static void init_i2c_and_pins() {
-        i2c_init(i2c0, SPEED_HZ);
-        gpio_set_function(SDA_PIN, GPIO_FUNC_I2C);
-        gpio_set_function(SCL_PIN, GPIO_FUNC_I2C);
-        gpio_pull_up(SDA_PIN);
-        gpio_pull_up(SCL_PIN);
-        sleep_ms(200);
-    }
+    ~Oled() = default;
 
-    static void cmd(uint8_t cmd) {
-        uint8_t buf[2] = {0x00, cmd};
-        i2c_write_blocking(i2c0, ADDR, buf, 2, false);
-    }
+    bool init();                    // returns true on success
+    void clear();
+    void set_contrast(uint8_t val);
+    void invert(bool on);
+    void display_on(bool on);
 
-    static void data(const uint8_t* buf, size_t len) {
-        uint8_t header[len + 1];
-        header[0] = 0x40;
-        std::memcpy(header + 1, buf, len);
-        i2c_write_blocking(i2c0, ADDR, header, len + 1, false);
-    }
+    // Core low-level methods (still public for advanced use)
+    bool cmd(uint8_t cmd);
+    bool data(const uint8_t* buf, size_t len);
 
-    static void init_display() {
-        cmd(0xAE);
-        cmd(0xD5); cmd(0x80);
-        cmd(0xA8); cmd(0x3F);
-        cmd(0xD3); cmd(0x00);
-        cmd(0x40);
-        cmd(0x8D); cmd(0x14);
-        cmd(0x20); cmd(0x00);
-        cmd(0xA1);
-        cmd(0xC8);
-        cmd(0xDA); cmd(0x12);
-        cmd(0x81); cmd(0xCF);
-        cmd(0xD9); cmd(0xF1);
-        cmd(0xDB); cmd(0x40);
-        cmd(0xA4);
-        cmd(0xA6);
-        cmd(0xAF);
-    }
+    // New: basic drawing helpers (replacing most of what Font does)
+    void set_cursor(uint8_t col, uint8_t page);
+    void draw_byte(uint8_t col, uint8_t page, uint8_t byte); // single column
 
-    static void clear() {
-        for (uint8_t page = 0; page < PAGE_COUNT; ++page) {
-            cmd(0xB0 + page);
-            cmd(0x02);
-            cmd(0x10);
-            uint8_t zeros[SCREEN_COLS] = {};
-            data(zeros, SCREEN_COLS);
-        }
-    }
+    // Getters
+    uint16_t get_width()  const { return width_;  }
+    uint16_t get_height() const { return height_; }
+
+private:
+    i2c_inst_t* i2c_;
+    uint sda_pin_;
+    uint scl_pin_;
+    uint speed_hz_;
+    uint8_t addr_;
+    uint16_t width_;       // visible width (usually 128)
+    uint16_t height_;      // visible height (64)
+    uint16_t ram_width_;   // internal RAM columns (128 or 132)
+    uint8_t  pages_;       // height / 8
+
+    bool write_blocking(const uint8_t* buf, size_t len);
+    void init_sequence();
 };

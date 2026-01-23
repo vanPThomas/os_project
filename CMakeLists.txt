@@ -15,6 +15,7 @@ pico_sdk_init()
 add_executable(os_project
     src/main.cpp
     src/IrRemote.cpp
+    src/Oled.cpp
 )
 
 target_include_directories(os_project PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)

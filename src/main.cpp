@@ -5,36 +5,53 @@
 #include "IrRemote.h"
 
 int main() {
-    stdio_init_all();
-    Oled::init_i2c_and_pins();
-    Oled::init_display();
-    Oled::clear();
+stdio_init_all();
 
-    // Boot sequence
-    for (uint8_t i = 0; i < 4; ++i) {
-        Font::print(1, 4, "Booting.");
-        sleep_ms(200);
-        Font::print(1, 4, "Booting..");
-        sleep_ms(200);
-        Font::print(1, 4, "Booting...");
-        sleep_ms(200);
-        Oled::clear();
+    // Create the display object with your current parameters
+    Oled display(i2c0,          // i2c instance
+                 4,             // SDA
+                 5,             // SCL
+                 400000,        // speed Hz
+                 0x3C,          // address
+                 128,           // visible width
+                 64,            // visible height
+                 132);          // internal RAM width (SH1106)
+
+    // Initialize it
+    if (!display.init()) {
+        // Optional: handle error (e.g. blink LED or printf)
+        while (true) tight_loop_contents();
     }
 
-    Font::center_print(1, "PICO OS");
-    Font::center_print(3, "v0.1 - 2026");
-    Font::center_print(5, "PRESS ANY KEY");
+    display.clear();  // now using instance
+
+    // Boot animation - pass display to Font functions
+    for (uint8_t i = 0; i < 4; ++i) {
+        Font::print(display, 1, 4, "Booting.");
+        sleep_ms(200);
+        Font::print(display, 1, 4, "Booting..");
+        sleep_ms(200);
+        Font::print(display, 1, 4, "Booting...");
+        sleep_ms(200);
+        display.clear();
+    }
+
+    Font::center_print(display, 1, "PICO OS");
+    Font::center_print(display, 3, "v0.1 - 2026");
+    Font::center_print(display, 5, "PRESS ANY KEY");
 
     sleep_ms(2000);
-    Oled::clear();
+    display.clear();
 
+
+    
     IrRemote remote(15);
 
     while (true) {
         IrButton btn = remote.getButton();
 
         if (btn != IrButton::NONE) {
-            Oled::clear();
+            display.clear();
 
             const char* label = "Unknown";
 
@@ -60,8 +77,7 @@ int main() {
                 default:                     label = "Other"; break;
             }
 
-            Font::center_print(2, label);
-
+            Font::center_print(display, 2, label);
             // if (btn == IrButton::BUTTON_UP)    { menuUp();    }
             // if (btn == IrButton::BUTTON_OK)    { selectItem(); }
             // if (btn == IrButton::BUTTON_BACK)  { goBack();     }
