@@ -37,7 +37,7 @@ stdio_init_all();
     }
 
     Font::center_print(display, 1, "PICO OS");
-    Font::center_print(display, 3, "v0.1 - 2026");
+    Font::center_print(display, 3, "v0.1.2 - 2026");
     Font::center_print(display, 5, "PRESS ANY KEY");
 
     sleep_ms(2000);
@@ -47,46 +47,77 @@ stdio_init_all();
     
     IrRemote remote(15);
 
+    static int cursorLocation = 1;           // start at first option
+    static int previousCursor = 0;           // to only redraw changed parts
+    static bool menuNeedsRedraw = true;      // flag for initial draw or major changes
+
     while (true) {
         IrButton btn = remote.getButton();
 
+        // Handle navigation
+        bool cursorMoved = false;
         if (btn != IrButton::NONE) {
-            display.clear();
-
-            const char* label = "Unknown";
-
-            switch (btn) {
-                case IrButton::BUTTON_0:   label = "0";     break;
-                case IrButton::BUTTON_1:   label = "1";     break;
-                case IrButton::BUTTON_2:   label = "2";     break;
-                case IrButton::BUTTON_3:   label = "3";     break;
-                case IrButton::BUTTON_4:   label = "4";     break;
-                case IrButton::BUTTON_5:   label = "5";     break;
-                case IrButton::BUTTON_6:   label = "6";     break;
-                case IrButton::BUTTON_7:   label = "7";     break;
-                case IrButton::BUTTON_8:   label = "8";     break;
-                case IrButton::BUTTON_9:   label = "9";     break;
-                case IrButton::BUTTON_UP:    label = "Up";    break;
-                case IrButton::BUTTON_DOWN:  label = "Down";  break;
-                case IrButton::BUTTON_LEFT:  label = "Left";  break;
-                case IrButton::BUTTON_RIGHT: label = "Right"; break;
-                case IrButton::BUTTON_OK:    label = "OK";    break;
-                case IrButton::BUTTON_LIST:  label = "List";  break;
-                case IrButton::BUTTON_BACK:  label = "Back";  break;
-                case IrButton::UNKNOWN:      label = "???";   break;
-                default:                     label = "Other"; break;
+            if (btn == IrButton::BUTTON_DOWN) {
+                cursorLocation++;
+                cursorMoved = true;
+            }
+            if (btn == IrButton::BUTTON_UP) {
+                cursorLocation--;
+                cursorMoved = true;
             }
 
-            Font::center_print(display, 2, label);
-            // if (btn == IrButton::BUTTON_UP)    { menuUp();    }
-            // if (btn == IrButton::BUTTON_OK)    { selectItem(); }
-            // if (btn == IrButton::BUTTON_BACK)  { goBack();     }
-            // etc.
+            // Wrap around (1 to 6)
+            if (cursorLocation < 1) cursorLocation = 6;
+            if (cursorLocation > 6) cursorLocation = 1;
 
-            sleep_ms(350);  // simple debounce / visual feedback delay
+            // Simple debounce + visual delay
+            sleep_ms(200);  // longer debounce when button pressed
+
+            // Handle selection (OK)
+            if (btn == IrButton::BUTTON_OK) {
+                // TODO: do something based on cursorLocation
+                const char* selected = "Selected!";
+                switch (cursorLocation) {
+                    case 1: selected = "Option 1 chosen"; break;
+                    case 2: selected = "Option 2 chosen"; break;
+                    // ...
+                    default: break;
+                }
+                display.clear();
+                Font::center_print(display, 3, selected);
+                sleep_ms(1500);               // show for 1.5 sec
+                menuNeedsRedraw = true;       // force redraw menu after
+            }
         }
 
-        sleep_ms(25);  // light polling — adjust as needed
+        // Only redraw when needed (initially or cursor moved)
+        if (menuNeedsRedraw || cursorMoved) {
+            if (menuNeedsRedraw) {
+                display.clear();
+
+                Font::print(display, 3, 0, "Menu");
+                Font::print(display, 3, 1, "Option 1");
+                Font::print(display, 3, 2, "Option 2");
+                Font::print(display, 3, 3, "Option 3");
+                Font::print(display, 3, 4, "Option 4");
+                Font::print(display, 3, 5, "Option 5");
+                Font::print(display, 3, 6, "Option 6");
+            }
+
+            // Erase old cursor (only if moved)
+            if (cursorMoved && !menuNeedsRedraw) {
+                Font::print(display, 1, previousCursor, " ");  // blank
+            }
+
+            // Draw new cursor
+            Font::print(display, 1, cursorLocation, ">");
+
+            previousCursor = cursorLocation;
+            menuNeedsRedraw = false;
+        }
+
+        // Light sleep when idle — prevents 100% CPU and flicker
+        sleep_ms(50);
     }
 
     // unreachable
