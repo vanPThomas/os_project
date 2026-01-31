@@ -3,28 +3,29 @@
 #include "Font.h"
 #include <stdio.h>
 #include "IrRemote.h"
+#include "pico/cyw43_arch.h"
 
 int main() {
-stdio_init_all();
 
+    stdio_init_all();
+    
     // Create the display object with your current parameters
     Oled display(i2c0,          // i2c instance
-                 4,             // SDA
-                 5,             // SCL
-                 400000,        // speed Hz
-                 0x3C,          // address
-                 128,           // visible width
-                 64,            // visible height
-                 132);          // internal RAM width (SH1106)
-
-    // Initialize it
-    if (!display.init()) {
-        // Optional: handle error (e.g. blink LED or printf)
-        while (true) tight_loop_contents();
-    }
-
-    display.clear();  // now using instance
-
+        4,             // SDA
+        5,             // SCL
+        400000,        // speed Hz
+        0x3C,          // address
+        128,           // visible width
+        64,            // visible height
+        132);          // internal RAM width (SH1106)
+        
+        // Initialize it
+        if (!display.init()) {
+            while (true) tight_loop_contents();
+        }
+        
+        display.clear();  // now using instance
+        
     // Boot animation - pass display to Font functions
     for (uint8_t i = 0; i < 4; ++i) {
         Font::print(display, 1, 4, "Booting.");
@@ -37,7 +38,7 @@ stdio_init_all();
     }
 
     Font::center_print(display, 1, "PICO OS");
-    Font::center_print(display, 3, "v0.1.2 - 2026");
+    Font::center_print(display, 3, "v0.1.3 - 2026");
     Font::center_print(display, 5, "PRESS ANY KEY");
 
     sleep_ms(2000);
@@ -75,12 +76,11 @@ stdio_init_all();
 
             // Handle selection (OK)
             if (btn == IrButton::BUTTON_OK) {
-                // TODO: do something based on cursorLocation
                 const char* selected = "Selected!";
                 switch (cursorLocation) {
                     case 1: selected = "Option 1 chosen"; break;
                     case 2: selected = "Option 2 chosen"; break;
-                    // ...
+                    
                     default: break;
                 }
                 display.clear();
@@ -90,7 +90,7 @@ stdio_init_all();
             }
         }
 
-        // Only redraw when needed (initially or cursor moved)
+        // Only redraw when needed
         if (menuNeedsRedraw || cursorMoved) {
             if (menuNeedsRedraw) {
                 display.clear();
@@ -104,7 +104,7 @@ stdio_init_all();
                 Font::print(display, 3, 6, "Option 6");
             }
 
-            // Erase old cursor (only if moved)
+            // Erase old cursor
             if (cursorMoved && !menuNeedsRedraw) {
                 Font::print(display, 1, previousCursor, " ");  // blank
             }
@@ -120,6 +120,5 @@ stdio_init_all();
         sleep_ms(50);
     }
 
-    // unreachable
     return 0;
 }

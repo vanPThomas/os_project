@@ -30,5 +30,6 @@ target_link_libraries(os_project
 # USB serial for debug
 pico_enable_stdio_usb(os_project 1)
 pico_enable_stdio_uart(os_project 0)
+pico_add_extra_outputs(os_project)
 
 pico_add_extra_outputs(os_project)

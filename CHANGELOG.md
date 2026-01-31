@@ -2,13 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.3] - 2026-01-31
+### Changed
+-Basic code cleanup
+
+---
+
 ## [0.1.2] - 2026-01-24
 ### Added
 - Added a basic menu controlled with a remote through IR sensor.
 
+---
+
 ## [0.1.1] - 2026-01-23
 ### Changed
 - Improved Oled drivers for more compatibility
+
+---
 
 ## [0.1.0] - 2026-01-21
 
