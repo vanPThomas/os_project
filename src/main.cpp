@@ -40,6 +40,7 @@ int main() {
     Font::center_print(display, 1, "PICO OS");
     Font::center_print(display, 3, "v0.1.3 - 2026");
     Font::center_print(display, 5, "PRESS ANY KEY");
+    Font::center_print(display, 6, "abcde");
 
     sleep_ms(2000);
     display.clear();

@@ -32,7 +32,7 @@ Very much a work-in-progress hobby project to explore bare-metal-style programmi
 1. Install the [Raspberry Pi Pico SDK](https://www.raspberrypi.com/documentation/microcontrollers/c_sdk.html)
 2. Set `PICO_SDK_PATH` environment variable
 4. Clone this repo
-3. `export PICO_SDK_PATH=/home/thomas/pico-projects/pico-sdk`
+3. `export PICO_SDK_PATH=~/pico-projects/pico-sdk`
 5. `mkdir build && cd build`
 6. `cmake -DPICO_BOARD=pico_w ..`
 7. `make -j`

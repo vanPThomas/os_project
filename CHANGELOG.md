@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.4]
+### Added
+- added custom lower case letters
+
+---
+
 ## [0.1.3] - 2026-01-31
 ### Changed
 -Basic code cleanup
