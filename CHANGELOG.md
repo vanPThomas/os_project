@@ -2,7 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.1.4]
+## [0.1.5] - 2026-02-02 
+### Added
+- Add uptime display on Option 2 (seconds/minutes since boot)
+- Add contrast control submenu (Option 3) with live up/down adjustment
+
+---
+
+## [0.1.4] - 2026-02-01
 ### Added
 - added custom lower case letters
 

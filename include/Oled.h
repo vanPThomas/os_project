@@ -22,7 +22,7 @@ public:
 
     bool init();                    // returns true on success
     void clear();
-    void set_contrast(uint8_t val);
+    void set_contrast(uint8_t level);
     void invert(bool on);
     void display_on(bool on);
 

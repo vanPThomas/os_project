@@ -18,12 +18,14 @@ add_executable(os_project
     src/Oled.cpp
 )
 
-target_include_directories(os_project PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(os_project PRIVATE 
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    )
 
 # Critical: This adds the include path for pico/cyw43_arch.h and links the arch code
 target_link_libraries(os_project
     pico_stdlib
-    pico_cyw43_arch_none
+    # pico_cyw43_arch_none
     hardware_i2c
 )
 

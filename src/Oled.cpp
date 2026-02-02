@@ -71,3 +71,8 @@ void Oled::clear() {
         data(zeros, ram_width_);
     }
 }
+
+void Oled::set_contrast(uint8_t level) {
+    cmd(0x81);      // set contrast control
+    cmd(level);     // level 0–255
+}
