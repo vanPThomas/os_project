@@ -9,7 +9,8 @@ int main() {
     stdio_init_all();
 
     // Create the display object with your current parameters
-    Oled display(i2c0,          // i2c instance
+    Oled display(
+        i2c0,          // i2c instance
         4,             // SDA
         5,             // SCL
         400000,        // speed Hz
@@ -78,22 +79,38 @@ int main() {
                 const char* selected = "Selected!";
                 switch (cursorLocation) {
                     case 1: selected = "Option 1 chosen"; break;
-                    case 2:
-                    {
+                    case 2: {
                         display.clear();
-                        uint64_t uptime_us = time_us_64();
-                        uint32_t seconds = uptime_us / 1000000ULL;
-                        uint32_t minutes = seconds / 60;
-                        seconds %= 60;
-                        char buf[32];
-                        snprintf(buf, sizeof(buf), "Uptime: %02u:%02u", minutes, seconds);
-                        Font::center_print(display, 2, buf);
-                        Font::center_print(display, 4, "Press any key");
-                        // Wait for any button press to return
-                        while (remote.getButton() == IrButton::NONE) {
-                            sleep_ms(50);
+                        Font::center_print(display, 1, "Uptime");
+                        Font::center_print(display, 5, "Any key to exit");
+
+                        uint64_t last_update = time_us_64();
+                        while (true) {
+                            // Update every 5 seconds
+                            uint64_t now = time_us_64();
+                            if (now - last_update >= 5000000ULL) {  // 5 seconds in µs
+                                uint64_t uptime_us = now;
+                                uint32_t seconds = uptime_us / 1000000ULL;
+                                uint32_t minutes = seconds / 60;
+                                uint32_t hours   = minutes / 60;
+                                seconds %= 60;
+                                minutes %= 60;
+
+                                char buf[32];
+                                snprintf(buf, sizeof(buf), "%02u:%02u:%02u", hours, minutes, seconds);
+                                Font::center_print(display, 3, buf);
+
+                                last_update = now;
+                            }
+
+                            // Exit on any button press
+                            if (remote.getButton() != IrButton::NONE) {
+                                menuNeedsRedraw = true;
+                                break;
+                            }
+
+                            sleep_ms(50);  // light sleep to not burn CPU
                         }
-                        menuNeedsRedraw = true;
                         break;
                     }
                     case 3: {
