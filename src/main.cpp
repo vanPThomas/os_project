@@ -4,6 +4,9 @@
 #include <stdio.h>
 #include "IrRemote.h"
 
+void printUptime(Oled display, bool menuNeedsRedraw, IrRemote remote);
+void printContrast(Oled display, bool menuNeedsRedraw, IrRemote remote);
+
 int main() {
 
     stdio_init_all();
@@ -18,9 +21,9 @@ int main() {
         128,           // visible width
         64,            // visible height
         132);          // internal RAM width (SH1106)
-        
         // Initialize it
-    if (!display.init()) {
+    if (!display.init())
+    {
         while (true) tight_loop_contents();
     }
 
@@ -44,8 +47,6 @@ int main() {
     sleep_ms(2000);
     display.clear();
 
-
-    
     IrRemote remote(15);
 
     static int cursorLocation = 1;           // start at first option
@@ -79,65 +80,14 @@ int main() {
                 const char* selected = "Selected!";
                 switch (cursorLocation) {
                     case 1: selected = "Option 1 chosen"; break;
-                    case 2: {
-                        display.clear();
-                        Font::center_print(display, 1, "Uptime");
-                        Font::center_print(display, 5, "Any key to exit");
-
-                        uint64_t last_update = time_us_64();
-                        while (true) {
-                            // Update every 5 seconds
-                            uint64_t now = time_us_64();
-                            if (now - last_update >= 5000000ULL) {  // 5 seconds in µs
-                                uint64_t uptime_us = now;
-                                uint32_t seconds = uptime_us / 1000000ULL;
-                                uint32_t minutes = seconds / 60;
-                                uint32_t hours   = minutes / 60;
-                                seconds %= 60;
-                                minutes %= 60;
-
-                                char buf[32];
-                                snprintf(buf, sizeof(buf), "%02u:%02u:%02u", hours, minutes, seconds);
-                                Font::center_print(display, 3, buf);
-
-                                last_update = now;
-                            }
-
-                            // Exit on any button press
-                            if (remote.getButton() != IrButton::NONE) {
-                                menuNeedsRedraw = true;
-                                break;
-                            }
-
-                            sleep_ms(50);  // light sleep to not burn CPU
-                        }
+                    case 2:
+                    {
+                        printUptime(display, menuNeedsRedraw, remote);
                         break;
                     }
-                    case 3: {
-                        static uint8_t contrast = 0xCF;  // default
-                        display.clear();
-                        Font::center_print(display, 1, "Contrast");
-                        char buf[16];
-                        snprintf(buf, sizeof(buf), "Level: %d", contrast);
-                        Font::center_print(display, 3, buf);
-                        Font::center_print(display, 5, "Up/Down to adjust");
-                        
-                        while (true) {
-                            IrButton btn = remote.getButton();
-                            if (btn == IrButton::BUTTON_UP) {
-                                if (contrast < 255) contrast += 5;
-                                display.set_contrast(contrast);
-                            }
-                            if (btn == IrButton::BUTTON_DOWN) {
-                                if (contrast > 5) contrast -= 5;
-                                display.set_contrast(contrast);
-                            }
-                            if (btn == IrButton::BUTTON_OK || btn == IrButton::BUTTON_BACK) {
-                                menuNeedsRedraw = true;
-                                break;
-                            }
-                            sleep_ms(50);
-                        }
+                    case 3:
+                    {
+                        printContrast(display, menuNeedsRedraw, remote);
                         break;
                     }
                     
@@ -154,7 +104,6 @@ int main() {
         if (menuNeedsRedraw || cursorMoved) {
             if (menuNeedsRedraw) {
                 display.clear();
-
                 Font::print(display, 3, 0, "Menu");
                 Font::print(display, 3, 1, "Option 1");
                 Font::print(display, 3, 2, "Uptime");
@@ -181,4 +130,67 @@ int main() {
     }
 
     return 0;
+}
+
+void printContrast(Oled display, bool menuNeedsRedraw, IrRemote remote)
+{
+    static uint8_t contrast = 0xCF;  // default
+    display.clear();
+    Font::center_print(display, 1, "Contrast");
+    char buf[16];
+    snprintf(buf, sizeof(buf), "Level: %d", contrast);
+    Font::center_print(display, 3, buf);
+    Font::center_print(display, 5, "Up/Down to adjust");
+    
+    while (true) {
+        IrButton btn = remote.getButton();
+        if (btn == IrButton::BUTTON_UP) {
+            if (contrast < 255) contrast += 5;
+            display.set_contrast(contrast);
+        }
+        if (btn == IrButton::BUTTON_DOWN) {
+            if (contrast > 5) contrast -= 5;
+            display.set_contrast(contrast);
+        }
+        if (btn == IrButton::BUTTON_OK || btn == IrButton::BUTTON_BACK) {
+            menuNeedsRedraw = true;
+            break;
+        }
+        sleep_ms(50);
+    }
+}
+
+void printUptime(Oled display, bool menuNeedsRedraw, IrRemote remote)
+{
+    display.clear();
+    Font::center_print(display, 1, "Uptime");
+    Font::center_print(display, 5, "Any key to exit");
+
+    uint64_t last_update = time_us_64();
+    while (true) {
+        // Update every 5 seconds
+        uint64_t now = time_us_64();
+        if (now - last_update >= 5000000ULL) {  // 5 seconds in µs
+            uint64_t uptime_us = now;
+            uint32_t seconds = uptime_us / 1000000ULL;
+            uint32_t minutes = seconds / 60;
+            uint32_t hours   = minutes / 60;
+            seconds %= 60;
+            minutes %= 60;
+
+            char buf[32];
+            snprintf(buf, sizeof(buf), "%02u:%02u:%02u", hours, minutes, seconds);
+            Font::center_print(display, 3, buf);
+
+            last_update = now;
+        }
+
+        // Exit on any button press
+        if (remote.getButton() != IrButton::NONE) {
+            menuNeedsRedraw = true;
+            break;
+        }
+
+        sleep_ms(50);  // light sleep to not burn CPU
+    }
 }
