@@ -8,7 +8,6 @@
 
 class Oled {
 public:
-    // Constructor with configurable parameters
     Oled(i2c_inst_t* i2c_inst = i2c0,
          uint sda_pin = 4,
          uint scl_pin = 5,
@@ -26,11 +25,11 @@ public:
     void invert(bool on);
     void display_on(bool on);
 
-    // Core low-level methods (still public for advanced use)
+    // Core low-level methods
     bool cmd(uint8_t cmd);
     bool data(const uint8_t* buf, size_t len);
 
-    // New: basic drawing helpers (replacing most of what Font does)
+    // basic drawing helpers
     void set_cursor(uint8_t col, uint8_t page);
     void draw_byte(uint8_t col, uint8_t page, uint8_t byte); // single column
 

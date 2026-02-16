@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Oled.h"           // ← Font can now safely call Oled::cmd / data
+#include "Oled.h"
 #include <cstdint>
 #include <cstring>
 
@@ -66,7 +66,7 @@ namespace Font {
     constexpr Glyph y     = {0x00, 0x18, 0xa0, 0xa0, 0xf8, 0x00};
     constexpr Glyph z     = {0x00, 0xc8, 0xa8, 0x98, 0x88, 0x00};
 
-// Punctuation & symbols (your original names kept for clarity)
+    // Punctuation & symbols
     constexpr Glyph dot   = {0x00, 0x00, 0xc0, 0xc0, 0x00, 0x00};
     constexpr Glyph comma = {0x00, 0x00, 0x80, 0xe0, 0x00, 0x00};
     constexpr Glyph colon = {0x00, 0x00, 0xc6, 0xc6, 0x00, 0x00};
@@ -97,8 +97,6 @@ namespace Font {
     constexpr Glyph nine   = {0x00, 0x0c, 0x92, 0x92, 0x92, 0x7c}; // 9
 
     constexpr Glyph missing = {0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe}; // if missing
-
-    // In Font.h (add this after your glyphs)
 
     static constexpr const Glyph* const lookup[128] = {
         // 0-31: control chars
@@ -154,10 +152,11 @@ namespace Font {
     static void draw(Oled& display, uint8_t char_col, uint8_t page, const Glyph& g) {
         uint8_t start_col = char_col * WIDTH + 2; // SH1106 offset
 
-        display.set_cursor(start_col, page);      // assuming you added set_cursor()
+        display.set_cursor(start_col, page);
         display.data(g, WIDTH);
     }
 
+    // print data to desired location
     static void print(Oled& display, uint8_t col, uint8_t page, const char* str) {
         while (*str && col < display.get_width() / WIDTH) {
             const Glyph* g = lookup[static_cast<uint8_t>(*str)];
@@ -166,6 +165,7 @@ namespace Font {
         }
     }
 
+    // print data centered in the page
     static void center_print(Oled& display, uint8_t page, const char* str) {
         uint8_t len = 0;
         while (str[len]) ++len;

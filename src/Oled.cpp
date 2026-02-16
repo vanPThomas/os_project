@@ -6,9 +6,7 @@ Oled::Oled(i2c_inst_t* i2c_inst, uint sda, uint scl, uint speed, uint8_t addr,
       sda_pin_(sda), scl_pin_(scl), speed_hz_(speed), addr_(addr),
       width_(w), height_(h), ram_width_(ram_w),
       pages_(h / 8)
-{
-    // nothing here — real init in init()
-}
+{}
 
 bool Oled::init() {
     // I2C setup
@@ -24,7 +22,7 @@ bool Oled::init() {
 
     // Test clear to confirm it works
     clear();
-    return true;  // later: return false if I²C fails
+    return true;
 }
 
 void Oled::init_sequence() {
