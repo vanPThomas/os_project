@@ -21,6 +21,17 @@ int main() {
         128,           // visible width
         64,            // visible height
         132);          // internal RAM width (SH1106)
+
+    static const char* menuItems[7] = {
+        "Menu",     
+        "Option 1",
+        "Uptime",
+        "Contrast",
+        "Option 4",
+        "Option 5",
+        "Option 6"
+    };
+
         // Initialize it
     if (!display.init())
     {
@@ -101,20 +112,20 @@ int main() {
         }
 
         // Only redraw when needed
-        if (menuNeedsRedraw || cursorMoved) {
-            if (menuNeedsRedraw) {
+        if (menuNeedsRedraw || cursorMoved)
+        {
+            if (menuNeedsRedraw)
+            {
                 display.clear();
                 Font::print(display, 3, 0, "Menu");
-                Font::print(display, 3, 1, "Option 1");
-                Font::print(display, 3, 2, "Uptime");
-                Font::print(display, 3, 3, "Contrast");
-                Font::print(display, 3, 4, "Option 4");
-                Font::print(display, 3, 5, "Option 5");
-                Font::print(display, 3, 6, "Option 6");
+                for (int i = 1; i <= 6; ++i) {
+                    Font::print(display, 3, i, menuItems[i]);
+                }
             }
 
             // Erase old cursor
-            if (cursorMoved && !menuNeedsRedraw) {
+            if (cursorMoved && !menuNeedsRedraw)
+            {
                 Font::print(display, 1, previousCursor, " ");  // blank
             }
 
