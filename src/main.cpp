@@ -6,6 +6,7 @@
 
 void printUptime(Oled display, bool menuNeedsRedraw, IrRemote remote);
 void printContrast(Oled display, bool menuNeedsRedraw, IrRemote remote);
+void drawMenu(Oled& display, int cursorPos, const char* const* items, int itemCount);
 
 int main() {
 
@@ -116,11 +117,7 @@ int main() {
         {
             if (menuNeedsRedraw)
             {
-                display.clear();
-                Font::print(display, 3, 0, "Menu");
-                for (int i = 1; i <= 6; ++i) {
-                    Font::print(display, 3, i, menuItems[i]);
-                }
+                drawMenu(display, cursorLocation, menuItems, 7);
             }
 
             // Erase old cursor
@@ -204,4 +201,13 @@ void printUptime(Oled display, bool menuNeedsRedraw, IrRemote remote)
 
         sleep_ms(50);  // light sleep to not burn CPU
     }
+}
+
+void drawMenu(Oled& display, int cursorPos, const char* const* items, int itemCount)
+{
+    display.clear();
+    for (int i = 0; i < itemCount; ++i) {
+        Font::print(display, 3, i, items[i]);
+    }
+    Font::print(display, 1, cursorPos, ">");
 }
