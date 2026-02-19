@@ -99,7 +99,7 @@ int main() {
     }
 
     Font::center_print(display, 1, "PICO OS");
-    Font::center_print(display, 3, "v0.1.5 - 2026");
+    Font::center_print(display, 3, "v0.1.6 - 2026");
     Font::center_print(display, 5, "PRESS ANY KEY");
 
     sleep_ms(2000);
