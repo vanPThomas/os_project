@@ -12,10 +12,6 @@ void drawMenu(Oled& display, int cursorPos, const char* const* items, int itemCo
 int main() {
 
     stdio_init_all();
-    uart_init(uart0, 57600);
-    // uart_init(uart0, 38400);
-    gpio_set_function(0, GPIO_FUNC_UART);  // GP0 = TX to ESP RX
-    gpio_set_function(1, GPIO_FUNC_UART);  // GP1 = RX from ESP TX
 
     // Create the display object with your current parameters
     Oled display(
@@ -38,52 +34,10 @@ int main() {
         "Option 6"
     };
 
-        // Initialize it
     if (!display.init())
     {
         while (true) tight_loop_contents();
     }
-
-    display.clear();  // clear once at the start
-
-    // Test AT command and show response on OLED
-    Font::center_print(display, 1, "Testing ESP8266...");
-    Font::center_print(display, 3, "Sending AT...");
-
-    sleep_ms(500);  // short pause for readability
-
-    // Send AT command
-    uart_puts(uart0, "AT\r\n");
-
-    // Wait and read response
-    char response[128] = {0};
-    int len = 0;
-    uint64_t start = time_us_64();
-    while (time_us_64() - start < 2000000ULL) {  // 2 sec timeout
-        if (uart_is_readable(uart0) && len < 127) {
-            char c = uart_getc(uart0);
-            response[len++] = c;
-            if (c == '\n') break;  // end of line
-        }
-        sleep_us(100);
-    }
-    response[len] = '\0';
-
-    // Show result (no clear yet — overwrite the "Sending" line)
-    display.clear();  // clear now, after collecting response
-
-    if (len > 0) {
-        // Trim trailing \r\n if present
-        if (len >= 2 && response[len-2] == '\r' && response[len-1] == '\n') {
-            response[len-2] = '\0';
-        }
-        Font::center_print(display, 2, response);  // usually "OK"
-    } else {
-        Font::center_print(display, 2, "No response");
-        Font::center_print(display, 4, "Check wiring");
-    }
-
-    sleep_ms(4000);  // let user read it
 
     display.clear();  // ready for boot animation
 
@@ -115,6 +69,7 @@ int main() {
         IrButton btn = remote.getButton();
 
         // Handle navigation
+
         bool cursorMoved = false;
         if (btn != IrButton::NONE) {
             if (btn == IrButton::BUTTON_DOWN) {
