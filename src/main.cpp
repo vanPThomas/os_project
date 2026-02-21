@@ -3,7 +3,6 @@
 #include "Font.h"
 #include <stdio.h>
 #include "IrRemote.h"
-#include "hardware/uart.h"
 
 void printUptime(Oled display, bool menuNeedsRedraw, IrRemote remote);
 void printContrast(Oled display, bool menuNeedsRedraw, IrRemote remote);
@@ -39,7 +38,7 @@ int main() {
         while (true) tight_loop_contents();
     }
 
-    display.clear();  // ready for boot animation
+    display.clear();
 
     // Boot animation - pass display to Font functions
     for (uint8_t i = 0; i < 4; ++i) {
