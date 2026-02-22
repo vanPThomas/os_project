@@ -7,6 +7,7 @@
 void printUptime(Oled display, bool menuNeedsRedraw, IrRemote remote);
 void printContrast(Oled display, bool menuNeedsRedraw, IrRemote remote);
 void drawMenu(Oled& display, int cursorPos, const char* const* items, int itemCount);
+void bootSequence(Oled display);
 
 int main() {
 
@@ -40,22 +41,24 @@ int main() {
 
     display.clear();
 
-    // Boot animation - pass display to Font functions
-    for (uint8_t i = 0; i < 4; ++i) {
-        Font::print(display, 1, 4, "Booting.");
-        sleep_ms(200);
-        Font::print(display, 1, 4, "Booting..");
-        sleep_ms(200);
-        Font::print(display, 1, 4, "Booting...");
-        sleep_ms(200);
-        display.clear();
-    }
+    // // Boot animation - pass display to Font functions
+    // for (uint8_t i = 0; i < 4; ++i) {
+    //     Font::print(display, 1, 4, "Booting.");
+    //     sleep_ms(200);
+    //     Font::print(display, 1, 4, "Booting..");
+    //     sleep_ms(200);
+    //     Font::print(display, 1, 4, "Booting...");
+    //     sleep_ms(200);
+    //     display.clear();
+    // }
 
-    Font::center_print(display, 1, "PICO OS");
-    Font::center_print(display, 3, "v0.1.6 - 2026");
-    Font::center_print(display, 5, "PRESS ANY KEY");
+    // Font::center_print(display, 1, "PICO OS");
+    // Font::center_print(display, 3, "v0.1.6 - 2026");
+    // Font::center_print(display, 5, "PRESS ANY KEY");
 
-    sleep_ms(2000);
+    // sleep_ms(2000);
+
+    bootSequence(display);
     display.clear();
 
     IrRemote remote(15);
@@ -210,4 +213,24 @@ void drawMenu(Oled& display, int cursorPos, const char* const* items, int itemCo
         Font::print(display, 3, i, items[i]);
     }
     Font::print(display, 1, cursorPos, ">");
+}
+
+void bootSequence(Oled display)
+{
+    // Boot animation - pass display to Font functions
+    for (uint8_t i = 0; i < 4; ++i) {
+        Font::print(display, 1, 4, "Booting.");
+        sleep_ms(200);
+        Font::print(display, 1, 4, "Booting..");
+        sleep_ms(200);
+        Font::print(display, 1, 4, "Booting...");
+        sleep_ms(200);
+        display.clear();
+    }
+
+    Font::center_print(display, 1, "PICO OS");
+    Font::center_print(display, 3, "v0.1.6 - 2026");
+    Font::center_print(display, 5, "PRESS ANY KEY");
+
+    sleep_ms(2000);
 }
