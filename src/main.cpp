@@ -4,10 +4,11 @@
 #include <stdio.h>
 #include "IrRemote.h"
 
-void printUptime(Oled display, bool menuNeedsRedraw, IrRemote remote);
-void printContrast(Oled display, bool menuNeedsRedraw, IrRemote remote);
+void printUptime(Oled display, bool& menuNeedsRedraw, IrRemote remote);
+void printContrast(Oled display, bool& menuNeedsRedraw, IrRemote remote);
 void drawMenu(Oled& display, int cursorPos, const char* const* items, int itemCount);
 void bootSequence(Oled display);
+void okButtonPress(int cursorLocation, Oled display, bool& menuNeedsRedraw, IrRemote remote);
 
 int main() {
 
@@ -40,23 +41,6 @@ int main() {
     }
 
     display.clear();
-
-    // // Boot animation - pass display to Font functions
-    // for (uint8_t i = 0; i < 4; ++i) {
-    //     Font::print(display, 1, 4, "Booting.");
-    //     sleep_ms(200);
-    //     Font::print(display, 1, 4, "Booting..");
-    //     sleep_ms(200);
-    //     Font::print(display, 1, 4, "Booting...");
-    //     sleep_ms(200);
-    //     display.clear();
-    // }
-
-    // Font::center_print(display, 1, "PICO OS");
-    // Font::center_print(display, 3, "v0.1.6 - 2026");
-    // Font::center_print(display, 5, "PRESS ANY KEY");
-
-    // sleep_ms(2000);
 
     bootSequence(display);
     display.clear();
@@ -92,26 +76,28 @@ int main() {
 
             // Handle selection (OK)
             if (btn == IrButton::BUTTON_OK) {
-                const char* selected = "Selected!";
-                switch (cursorLocation) {
-                    case 1: selected = "Option 1 chosen"; break;
-                    case 2:
-                    {
-                        printUptime(display, menuNeedsRedraw, remote);
-                        break;
-                    }
-                    case 3:
-                    {
-                        printContrast(display, menuNeedsRedraw, remote);
-                        break;
-                    }
+                // const char* selected = "Selected!";
+                // switch (cursorLocation) {
+                //     case 1: selected = "Option 1 chosen"; break;
+                //     case 2:
+                //     {
+                //         printUptime(display, menuNeedsRedraw, remote);
+                //         break;
+                //     }
+                //     case 3:
+                //     {
+                //         printContrast(display, menuNeedsRedraw, remote);
+                //         break;
+                //     }
                     
-                    default: break;
-                }
-                display.clear();
-                Font::center_print(display, 3, selected);
-                sleep_ms(1500);               // show for 1.5 sec
-                menuNeedsRedraw = true;       // force redraw menu after
+                //     default: break;
+                // }
+                // display.clear();
+                // Font::center_print(display, 3, selected);
+                // sleep_ms(1500);               // show for 1.5 sec
+                // menuNeedsRedraw = true;       // force redraw menu after
+                okButtonPress(cursorLocation, display, menuNeedsRedraw, remote);
+
             }
         }
 
@@ -143,7 +129,7 @@ int main() {
     return 0;
 }
 
-void printContrast(Oled display, bool menuNeedsRedraw, IrRemote remote)
+void printContrast(Oled display, bool& menuNeedsRedraw, IrRemote remote)
 {
     static uint8_t contrast = 0xCF;  // default
     display.clear();
@@ -171,7 +157,7 @@ void printContrast(Oled display, bool menuNeedsRedraw, IrRemote remote)
     }
 }
 
-void printUptime(Oled display, bool menuNeedsRedraw, IrRemote remote)
+void printUptime(Oled display, bool& menuNeedsRedraw, IrRemote remote)
 {
     display.clear();
     Font::center_print(display, 1, "Uptime");
@@ -233,4 +219,28 @@ void bootSequence(Oled display)
     Font::center_print(display, 5, "PRESS ANY KEY");
 
     sleep_ms(2000);
+}
+
+void okButtonPress(int cursorLocation, Oled display, bool& menuNeedsRedraw, IrRemote remote)
+{
+    const char* selected = "Selected!";
+    switch (cursorLocation) {
+        case 1: selected = "Option 1 chosen"; break;
+        case 2:
+        {
+            printUptime(display, menuNeedsRedraw, remote);
+            break;
+        }
+        case 3:
+        {
+            printContrast(display, menuNeedsRedraw, remote);
+            break;
+        }
+        
+        default: break;
+    }
+    display.clear();
+    Font::center_print(display, 3, selected);
+    sleep_ms(1500);               // show for 1.5 sec
+    menuNeedsRedraw = true;       // force redraw menu after
 }
