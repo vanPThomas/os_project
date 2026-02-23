@@ -76,28 +76,7 @@ int main() {
 
             // Handle selection (OK)
             if (btn == IrButton::BUTTON_OK) {
-                // const char* selected = "Selected!";
-                // switch (cursorLocation) {
-                //     case 1: selected = "Option 1 chosen"; break;
-                //     case 2:
-                //     {
-                //         printUptime(display, menuNeedsRedraw, remote);
-                //         break;
-                //     }
-                //     case 3:
-                //     {
-                //         printContrast(display, menuNeedsRedraw, remote);
-                //         break;
-                //     }
-                    
-                //     default: break;
-                // }
-                // display.clear();
-                // Font::center_print(display, 3, selected);
-                // sleep_ms(1500);               // show for 1.5 sec
-                // menuNeedsRedraw = true;       // force redraw menu after
                 okButtonPress(cursorLocation, display, menuNeedsRedraw, remote);
-
             }
         }
 
