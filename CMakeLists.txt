@@ -16,6 +16,7 @@ add_executable(os_project
     src/main.cpp
     src/IrRemote.cpp
     src/Oled.cpp
+    src/MenuApp.cpp
 )
 
 target_include_directories(os_project PRIVATE 
