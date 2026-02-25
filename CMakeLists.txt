@@ -27,10 +27,8 @@ target_link_libraries(os_project PRIVATE
     # add more libs if needed, e.g. pico_cyw43_arch_none or pico_btstack_classic
 )
 
-# Define the version macro safely
 target_compile_definitions(os_project PRIVATE
     PROJECT_VERSION=\"${PROJECT_VERSION}\"
-    # You can also add: PROJECT_VERSION_MAJOR=${PROJECT_VERSION_MAJOR}
 )
 
 # USB serial output, no UART
