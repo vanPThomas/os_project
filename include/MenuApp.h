@@ -12,7 +12,7 @@ class MenuApp
 public:
     MenuApp();
 
-    void run();  // contains main while(true) loop
+    void run();
 
 private:
     Oled display;

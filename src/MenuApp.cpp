@@ -170,8 +170,7 @@ void MenuApp::bootSequence()
     }
 
     Font::center_print(display, 1, "PICO OS");
-    Font::center_print(display, 3, "v0.2.0 - 2026");
-    // Font::center_print(display, 3, PROJECT_VERSION + " - 2026");
+    Font::center_print(display, 3, PROJECT_VERSION);
     Font::center_print(display, 5, "PRESS ANY KEY");
 
     sleep_ms(2000);
