@@ -115,24 +115,36 @@ void MenuApp::printContrast()
 void MenuApp::printUptime()
 {
     display.clear();
+    char buf[32];
+    uint64_t now = time_us_64();
+    uint64_t uptime_us = now;
+    uint32_t seconds = uptime_us / 1000000ULL;
+    uint32_t minutes = seconds / 60;
+    uint32_t hours   = minutes / 60;
+    seconds %= 60;
+    minutes %= 60;
+    snprintf(buf, sizeof(buf), "%02u:%02u:%02u", hours, minutes, seconds);
     Font::center_print(display, 1, "Uptime");
+    Font::center_print(display, 3, buf);
     Font::center_print(display, 5, "Any key to exit");
 
     uint64_t last_update = time_us_64();
     while (true) {
         // Update every 5 seconds
-        uint64_t now = time_us_64();
+        now = time_us_64();
         if (now - last_update >= 5000000ULL) {  // 5 seconds in µs
-            uint64_t uptime_us = now;
-            uint32_t seconds = uptime_us / 1000000ULL;
-            uint32_t minutes = seconds / 60;
-            uint32_t hours   = minutes / 60;
+            uptime_us = now;
+            seconds = uptime_us / 1000000ULL;
+            minutes = seconds / 60;
+            hours   = minutes / 60;
             seconds %= 60;
             minutes %= 60;
-
-            char buf[32];
             snprintf(buf, sizeof(buf), "%02u:%02u:%02u", hours, minutes, seconds);
+            display.clear();
+            Font::center_print(display, 1, "Uptime");
             Font::center_print(display, 3, buf);
+            Font::center_print(display, 5, "Any key to exit");
+
 
             last_update = now;
         }
