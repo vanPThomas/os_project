@@ -30,12 +30,14 @@ MenuApp::MenuApp()
 
 void MenuApp::run()
 {
-    while (true) {
+    while (true)
+    {
         IrButton btn = remote.getButton();
 
         // Handle navigation
         bool cursorMoved = false;
-        if (btn != IrButton::NONE) {
+        if (btn != IrButton::NONE)
+        {
             if (btn == IrButton::BUTTON_DOWN) {
                 cursorLocation++;
                 cursorMoved = true;
@@ -96,15 +98,18 @@ void MenuApp::printContrast()
     
     while (true) {
         IrButton btn = remote.getButton();
-        if (btn == IrButton::BUTTON_UP) {
+        if (btn == IrButton::BUTTON_UP)
+        {
             if (contrast < 255) contrast += 5;
             display.set_contrast(contrast);
         }
-        if (btn == IrButton::BUTTON_DOWN) {
+        if (btn == IrButton::BUTTON_DOWN)
+        {
             if (contrast > 5) contrast -= 5;
             display.set_contrast(contrast);
         }
-        if (btn == IrButton::BUTTON_OK || btn == IrButton::BUTTON_BACK) {
+        if (btn == IrButton::BUTTON_OK || btn == IrButton::BUTTON_BACK)
+        {
             menuNeedsRedraw = true;
             break;
         }
@@ -129,10 +134,12 @@ void MenuApp::printUptime()
     Font::center_print(display, 5, "Any key to exit");
 
     uint64_t last_update = time_us_64();
-    while (true) {
+    while (true)
+    {
         // Update every 5 seconds
         now = time_us_64();
-        if (now - last_update >= 5000000ULL) {  // 5 seconds in µs
+        if (now - last_update >= 5000000ULL)   // 5 seconds in µs
+        {
             uptime_us = now;
             seconds = uptime_us / 1000000ULL;
             minutes = seconds / 60;
@@ -150,7 +157,8 @@ void MenuApp::printUptime()
         }
 
         // Exit on any button press
-        if (remote.getButton() != IrButton::NONE) {
+        if (remote.getButton() != IrButton::NONE)
+        {
             menuNeedsRedraw = true;
             break;
         }
@@ -171,7 +179,8 @@ void MenuApp::drawMenu()
 void MenuApp::bootSequence()
 {
     // Boot animation - pass display to Font functions
-    for (uint8_t i = 0; i < 4; ++i) {
+    for (uint8_t i = 0; i < 4; ++i)
+    {
         Font::print(display, 1, 4, "Booting.");
         sleep_ms(200);
         Font::print(display, 1, 4, "Booting..");
@@ -191,7 +200,8 @@ void MenuApp::bootSequence()
 void MenuApp::okButtonPress()
 {
     const char* selected = "Selected!";
-    switch (cursorLocation) {
+    switch (cursorLocation)
+    {
         case 1: selected = "Option 1 chosen"; break;
         case 2:
         {
