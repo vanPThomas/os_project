@@ -2,9 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.1] 2026-02-26
+## Changed
+- Basic code refactoring for more readable code
+
+---
+
+## [0.2.0] 2026-02-25
+### Changed
+- Created seperate MenuApp class to put main logic in
+
+---
+
 ## [0.1.6] 2026-02-17
 ### Changed
 - Refactoring for more readable code
+
+---
 
 ## [0.1.5] - 2026-02-02 
 ### Added
