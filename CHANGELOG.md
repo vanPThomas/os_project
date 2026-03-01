@@ -2,8 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.2] 2026-03-01
+### Fixed
+- Fixed a critical bug in the constructor of MenuApp
+
 ## [0.2.1] 2026-02-26
-## Changed
+### Changed
 - Basic code refactoring for more readable code
 
 ---

@@ -5,16 +5,6 @@ MenuApp::MenuApp()
     : display(i2c0, 4, 5, 400000, 0x3C, 128, 64, 132),
       remote(15)
 {
-    Oled display(
-        i2c0,          // i2c instance
-        4,             // SDA
-        5,             // SCL
-        400000,        // speed Hz
-        0x3C,          // address
-        128,           // visible width
-        64,            // visible height
-        132);          // internal RAM width (SH1106)
-
     if (!display.init())
     {
         while (true) tight_loop_contents();
@@ -24,8 +14,6 @@ MenuApp::MenuApp()
 
     bootSequence();
     display.clear();
-
-    IrRemote remote(15);
 }
 
 void MenuApp::run()
