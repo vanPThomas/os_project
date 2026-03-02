@@ -22,10 +22,11 @@ private:
     int cursorLocation = 1;           // start at first option
     int previousCursor = 0;           // to only redraw changed parts
     bool menuNeedsRedraw = true;      // flag for initial draw or major changes
-    
+    uint8_t contrast = 0xCF;
     
     int itemCount = 7;
-    const char* menuItems[7] = {
+    const char* menuItems[itemCount] =
+    {
         "Menu",     
         "Option 1",
         "Uptime",

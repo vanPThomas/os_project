@@ -76,7 +76,7 @@ void MenuApp::run()
 
 void MenuApp::printContrast()
 {
-    static uint8_t contrast = 0xCF;  // default
+    // static uint8_t contrast = 0xCF;
     display.clear();
     Font::center_print(display, 1, "Contrast");
     char buf[16];

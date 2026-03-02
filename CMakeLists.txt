@@ -24,7 +24,6 @@ target_include_directories(os_project PRIVATE
 target_link_libraries(os_project PRIVATE
     pico_stdlib
     hardware_i2c
-    # add more libs if needed, e.g. pico_cyw43_arch_none or pico_btstack_classic
 )
 
 target_compile_definitions(os_project PRIVATE
