@@ -7,9 +7,9 @@ MenuApp::MenuApp()
 {
     if (!display.init())
     {
-        while (true) tight_loop_contents();
+        while (true){}
     }
-
+    init_timer_offset();
     display.clear();
 
     bootSequence();
@@ -40,7 +40,7 @@ void MenuApp::run()
             if (cursorLocation > 6) cursorLocation = 1;
 
             // Simple debounce + visual delay
-            sleep_ms(200);
+            my_sleep_ms(200);
 
             // Handle selection (OK)
             if (btn == IrButton::BUTTON_OK) {
@@ -70,7 +70,7 @@ void MenuApp::run()
         }
 
         // Light sleep when idle — prevents 100% CPU and flicker
-        sleep_ms(50);
+        my_sleep_ms(50);
     }
 }
 
@@ -101,7 +101,7 @@ void MenuApp::printContrast()
             menuNeedsRedraw = true;
             break;
         }
-        sleep_ms(50);
+        my_sleep_ms(50);
     }
 }
 
@@ -109,8 +109,8 @@ void MenuApp::printUptime()
 {
     display.clear();
     char buf[32];
-    uint64_t now = time_us_64();
-    uint64_t uptime_us = now;
+    uint64_t now = get_current_us();
+    uint64_t uptime_us = now - boot_offset_us; // subtract boot offset in microseconds
     uint32_t seconds = uptime_us / 1000000ULL;
     uint32_t minutes = seconds / 60;
     uint32_t hours   = minutes / 60;
@@ -121,14 +121,15 @@ void MenuApp::printUptime()
     Font::center_print(display, 3, buf);
     Font::center_print(display, 5, "Any key to exit");
 
-    uint64_t last_update = time_us_64();
+    uint64_t last_update = get_current_us();
     while (true)
     {
         // Update every 5 seconds
-        now = time_us_64();
+        now = get_current_us();
+        
         if (now - last_update >= 5000000ULL)   // 5 seconds in µs
         {
-            uptime_us = now;
+            uptime_us = now - boot_offset_us;
             seconds = uptime_us / 1000000ULL;
             minutes = seconds / 60;
             hours   = minutes / 60;
@@ -151,7 +152,7 @@ void MenuApp::printUptime()
             break;
         }
 
-        sleep_ms(50);  // light sleep to not burn CPU
+        my_sleep_ms(50);  // light sleep to not burn CPU
     }
 }
 
@@ -166,15 +167,14 @@ void MenuApp::drawMenu()
 
 void MenuApp::bootSequence()
 {
-    // Boot animation - pass display to Font functions
     for (uint8_t i = 0; i < 4; ++i)
     {
         Font::print(display, 1, 4, "Booting.");
-        sleep_ms(200);
+        my_sleep_ms(200);
         Font::print(display, 1, 4, "Booting..");
-        sleep_ms(200);
+        my_sleep_ms(200);
         Font::print(display, 1, 4, "Booting...");
-        sleep_ms(200);
+        my_sleep_ms(200);
         display.clear();
     }
 
@@ -182,7 +182,7 @@ void MenuApp::bootSequence()
     Font::center_print(display, 3, PROJECT_VERSION);
     Font::center_print(display, 5, "PRESS ANY KEY");
 
-    sleep_ms(2000);
+    my_sleep_ms(2000);
 }
 
 void MenuApp::okButtonPress()
@@ -206,6 +206,49 @@ void MenuApp::okButtonPress()
     }
     display.clear();
     Font::center_print(display, 3, selected);
-    sleep_ms(1500);               // show for 1.5 sec
-    menuNeedsRedraw = true;       // force redraw menu after
+    my_sleep_ms(1500);              // show for 1.5 sec
+    menuNeedsRedraw = true;         // force redraw menu after
 }
+
+// Busy-wait delay in milliseconds using the hardware timer (µs resolution)
+void MenuApp::my_sleep_ms(uint32_t millisec)
+{
+    uint64_t start_us  = get_current_us();               // current time in microseconds (_us means microseconds)
+    uint64_t delay_us  = (uint64_t)millisec * 1000ULL;   // convert milliseconds → microseconds
+    uint64_t target_us = start_us + delay_us;
+
+    // Spin until current time reaches or passes target
+    // (64-bit math naturally handles wraparound after ~584k years)
+    while (get_current_us() < target_us) {
+    }
+}
+
+
+// Returns microseconds since reset/power-on (bare-metal replacement for time_us_64())
+uint64_t MenuApp::get_current_us()
+{
+    // Pointers to the timer registers (volatile = must read fresh from hardware every time)
+    volatile uint32_t *timera_wh = (volatile uint32_t *)(TIMER_BASE_ME + TIMER_TIMERAWH_OFFSET_ME);
+    volatile uint32_t *timera_wl = (volatile uint32_t *)(TIMER_BASE_ME + TIMER_TIMERAWL_OFFSET_ME);
+
+    uint32_t high1 = *timera_wh;   // upper 32 bits first
+    uint32_t low   = *timera_wl;   // lower 32 bits
+    uint32_t high2 = *timera_wh;   // upper again to detect rollover
+
+    // If high changed between reads → low might be inconsistent → re-read low
+    if (high1 != high2) {
+        high1 = high2;
+        low   = *timera_wl;
+    }
+
+    // Combine into full 64-bit microseconds
+    return ((uint64_t)high1 << 32) | low;
+}
+
+void MenuApp::init_timer_offset()
+{
+    if (boot_offset_us == 0) {
+        boot_offset_us = get_current_us();  // capture once
+    }
+}
+

@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.0] 2026-03-02
+### Changed
+- Created custom baremetal my_sleep_ms and get_current_us functions to reduce pico-sdk reliance. 
+
 ---
 
 ## [0.2.2] 2026-03-01
