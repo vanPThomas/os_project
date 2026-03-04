@@ -2,31 +2,39 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.3.0] 2026-03-02
+---
+
+## [0.3.1] - 2026-03-04
+### Added
+- Added a `Hardwareutil.cpp` class and moved all baremetal functions there
+
+---
+
+## [0.3.0] - 2026-03-02
 ### Changed
 - Created custom baremetal my_sleep_ms and get_current_us functions to reduce pico-sdk reliance. 
 
 ---
 
-## [0.2.2] 2026-03-01
+## [0.2.2] - 2026-03-01
 ### Fixed
 - Fixed a critical bug in the constructor of MenuApp
 
 ---
 
-## [0.2.1] 2026-02-26
+## [0.2.1] - 2026-02-26
 ### Changed
 - Basic code refactoring for more readable code
 
 ---
 
-## [0.2.0] 2026-02-25
+## [0.2.0] - 2026-02-25
 ### Changed
 - Created seperate MenuApp class to put main logic in
 
 ---
 
-## [0.1.6] 2026-02-17
+## [0.1.6] - 2026-02-17
 ### Changed
 - Refactoring for more readable code
 
