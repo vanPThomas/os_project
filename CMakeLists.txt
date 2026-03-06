@@ -2,7 +2,7 @@
 
 include(/home/thomas/pico-projects/pico-sdk/external/pico_sdk_import.cmake)
 
-project(os_project VERSION 0.3.1 LANGUAGES C CXX ASM)
+project(os_project VERSION 0.3.2 LANGUAGES C CXX ASM)
 
 set(PROJECT_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
 set(PROJECT_VERSION_MINOR ${PROJECT_VERSION_MINOR})

@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.2] - 2026-03-06
+### Changed
+- Removed all pico-SDK functions from IrRemote, replacing them by custom baremetal functions
+
 ---
 
 ## [0.3.1] - 2026-03-04

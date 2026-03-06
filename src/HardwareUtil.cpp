@@ -40,3 +40,37 @@ uint64_t HardwareUtil::init_timer_offset()
     uint64_t boot_offset_us = get_current_us();
     return boot_offset_us;
 }
+
+void HardwareUtil::set_pin_function_sio(uint32_t pin)
+{
+    // Each GPIO has a CTRL register at offset 0x0c + 8*pin
+    // FUNCSEL bits [4:0] = 5 → SIO control
+    volatile uint32_t *ctrl_reg = (volatile uint32_t *)(IO_BANK0_BASE_ME + 0x0c + 8 * pin);
+    *ctrl_reg = 5;  // FUNCSEL = 5 (b101)
+}
+
+void HardwareUtil::set_pin_as_input(uint32_t pin)
+{
+    // Clear output-enable bit → pin becomes high-Z input
+    *(volatile uint32_t *)(SIO_BASE_ME + SIO_GPIO_OE_CLR_ME) = GPIO_BIT(pin);
+}
+
+void HardwareUtil::set_pin_pullup_enabled(uint32_t pin)
+{
+    // PADS_BANK0 GPIOx register (offset 0x04 + 4*pin)
+    volatile uint32_t *pad_reg = (volatile uint32_t *)(PADS_BANK0_BASE_ME + 0x04 + 4 * pin);
+
+    // Preserve all bits except PU (bit 2) and PD (bit 1)
+    // Set PU=1, PD=0, and ensure IE=1 (input enable)
+    uint32_t current = *pad_reg;
+    current &= ~(0x3u << 1);        // clear PU and PD
+    current |= (1u << 3) | (1u << 7); // set PU=1 (bit 2? wait → bit 2=PU, bit 7=IE)
+    *pad_reg = current;
+}
+
+void HardwareUtil::init_input_pin_with_pullup(uint32_t pin)
+{
+    set_pin_function_sio(pin);
+    set_pin_as_input(pin);
+    set_pin_pullup_enabled(pin);
+}
