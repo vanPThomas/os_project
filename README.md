@@ -2,16 +2,16 @@
 
 A tiny "operating system" experiment for the **Raspberry Pi Pico W** written in low-level C++.
 
-The goal is to build a minimal, self-contained system from scratch using almost no libraries — only the Pico SDK basics.  
+The goal is to build a minimal, self-contained system from scratch using no libraries.  
 It currently features:
 
-- 128×64 SSD1306/SH1106 OLED display driver (I²C)
+- 128×64 SSD1306/SH1106 OLED costum display driver (I²C)
 - Custom bitmap font rendering
 - Polling-based NEC IR remote control decoder
 - Button mapping for a typical cheap 21-key IR remote
 - Simple boot animation and press-to-interact screen
 
-Very much a work-in-progress hobby project to explore bare-metal-style programming on microcontrollers.
+Very much a work-in-progress hobby project to explore bare-metal programming on microcontrollers.
 
 ### Current Hardware Setup
 
@@ -25,18 +25,15 @@ Very much a work-in-progress hobby project to explore bare-metal-style programmi
   - OUT → GP15
   - VCC → 3.3V
   - GND → GND
-- **Remote**: Generic mini 21-key IR remote (NEC protocol variant)
+- **Remote**: Generic IR remote (NEC protocol variant)
 
 ### Building & Flashing
 
-1. Install the [Raspberry Pi Pico SDK](https://www.raspberrypi.com/documentation/microcontrollers/c_sdk.html)
-2. Set `PICO_SDK_PATH` environment variable
-4. Clone this repo
-3. `export PICO_SDK_PATH=~/pico-projects/pico-sdk`
-5. `mkdir build && cd build`
-6. `cmake -DPICO_BOARD=pico_w ..`
-7. `make -j`
-8. Hold BOOTSEL button → drag&drop `pico_os.uf2` to the RPI-RP2 drive or use picotools
+
+1. `mkdir build && cd build`
+2. `cmake -DPICO_BOARD=pico_w ..`
+3. `make -j`
+4. Hold BOOTSEL button → drag&drop `pico_os.uf2` to the RPI-RP2 drive or use picotools
 
 ### Features (so far)
 
@@ -54,5 +51,3 @@ Very much a work-in-progress hobby project to explore bare-metal-style programmi
 - Networking
 
 Feedback and ideas welcome!
-
-License: MIT
