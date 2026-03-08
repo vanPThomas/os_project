@@ -1,4 +1,3 @@
-// Oled.h
 #pragma once
 
 #include "pico/stdlib.h"
