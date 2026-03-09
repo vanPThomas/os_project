@@ -19,6 +19,7 @@ MenuApp::MenuApp()
     display.clear();
 }
 
+// Main loop 
 void MenuApp::run()
 {
     while (true)
@@ -77,6 +78,7 @@ void MenuApp::run()
     }
 }
 
+// Change the Oled contrast
 void MenuApp::printContrast()
 {
     // static uint8_t contrast = 0xCF;
@@ -108,6 +110,7 @@ void MenuApp::printContrast()
     }
 }
 
+// Print how long the pico has been running
 void MenuApp::printUptime()
 {
     display.clear();
@@ -159,6 +162,7 @@ void MenuApp::printUptime()
     }
 }
 
+// Draw the OS menu on screen
 void MenuApp::drawMenu()
 {
     display.clear();
@@ -168,6 +172,7 @@ void MenuApp::drawMenu()
     Font::print(display, 1, cursorLocation, ">");
 }
 
+// Fake boot sequence
 void MenuApp::bootSequence()
 {
     for (uint8_t i = 0; i < 4; ++i)
@@ -188,6 +193,7 @@ void MenuApp::bootSequence()
     HardwareUtil::my_sleep_ms(2000);
 }
 
+// Menu selection
 void MenuApp::okButtonPress()
 {
     const char* selected = "Selected!";
