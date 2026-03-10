@@ -3,6 +3,7 @@
 #include <cstdint>
 #include "HardwareUtil.h"
 
+// needs to be changed based on your remote
 enum class IrButton : uint8_t
 {
     NONE       = 0,
