@@ -11,7 +11,7 @@ MenuApp::MenuApp()
     }
     if(boot_offset_us == 0)
     {
-        boot_offset_us = HardwareUtil::init_timer_offset();
+        boot_offset_us = HardwareUtil::get_boot_offset_us();
     }
     display.clear();
 

@@ -30,7 +30,7 @@ namespace HardwareUtil
 {
     uint64_t get_current_us();
     void my_sleep_ms(uint32_t millisec);
-    uint64_t init_timer_offset();
+    uint64_t get_boot_offset_us();
 
     // Sets the GPIO function select to SIO (software GPIO control)
     void set_pin_function_sio(uint32_t pin);

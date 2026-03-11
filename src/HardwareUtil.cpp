@@ -35,10 +35,13 @@ uint64_t HardwareUtil::get_current_us()
     return ((uint64_t)high1 << 32) | low;
 }
 
-uint64_t HardwareUtil::init_timer_offset()
+uint64_t HardwareUtil::get_boot_offset_us()
 {
-    uint64_t boot_offset_us = get_current_us();
-    return boot_offset_us;
+    static uint64_t offset = 0;
+    if (offset == 0) {
+        offset = get_current_us();
+    }
+    return offset;
 }
 
 void HardwareUtil::set_pin_function_sio(uint32_t pin)
@@ -57,14 +60,16 @@ void HardwareUtil::set_pin_as_input(uint32_t pin)
 
 void HardwareUtil::set_pin_pullup_enabled(uint32_t pin)
 {
-    // PADS_BANK0 GPIOx register (offset 0x04 + 4*pin)
     volatile uint32_t *pad_reg = (volatile uint32_t *)(PADS_BANK0_BASE_ME + 0x04 + 4 * pin);
 
-    // Preserve all bits except PU (bit 2) and PD (bit 1)
-    // Set PU=1, PD=0, and ensure IE=1 (input enable)
     uint32_t current = *pad_reg;
-    current &= ~(0x3u << 1);        // clear PU and PD
-    current |= (1u << 3) | (1u << 7); // set PU=1 (bit 2? wait → bit 2=PU, bit 7=IE)
+
+    // Clear PU (bit 3) and PD (bit 2)
+    current &= ~((1u << 2) | (1u << 3));
+
+    // Set IE=1 (bit 7), PU=1 (bit 3), and optionally IS=1 (bit 5)
+    current |= (1u << 7) | (1u << 3) | (1u << 5);
+
     *pad_reg = current;
 }
 
