@@ -4,6 +4,7 @@
 #include "hardware/i2c.h"
 #include <cstdint>
 #include <cstring>
+#include "HardwareUtil.h"
 
 class Oled {
 public:

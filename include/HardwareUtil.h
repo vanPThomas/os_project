@@ -35,10 +35,13 @@ namespace HardwareUtil
     // Sets the GPIO function select to SIO (software GPIO control)
     void set_pin_function_sio(uint32_t pin);
 
+    // replacement for ppio_set_function from pico-sdk where you set pin to i2c
+    void set_pin_function_i2c(uint32_t pin);
+
     // Configures pin as input (disables output driver)
     void set_pin_as_input(uint32_t pin);
 
-    // Enables internal pull-up resistor + input buffer
+    // Enables internal pull-up resistor + input buffer (replacement for pico sdk function gpio_pull_up)
     void set_pin_pullup_enabled(uint32_t pin);
 
     // Convenience: configure pin as input with pull-up (most common for buttons/IR)
@@ -48,4 +51,6 @@ namespace HardwareUtil
     {
         return (*(volatile uint32_t *)(SIO_BASE_ME + SIO_GPIO_IN_ME) & GPIO_BIT(pin)) != 0;
     }
+
+
 }

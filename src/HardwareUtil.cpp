@@ -79,3 +79,11 @@ void HardwareUtil::init_input_pin_with_pullup(uint32_t pin)
     set_pin_as_input(pin);
     set_pin_pullup_enabled(pin);
 }
+
+void HardwareUtil::set_pin_function_i2c(uint32_t pin)
+{
+    // Set GPIO function select to I2C mode
+    // FUNCSEL = 3 for most pins on i2c0 / i2c1 (see RP2040 datasheet Table 84 / 2.19.2)
+    volatile uint32_t *ctrl_reg = (volatile uint32_t *)(IO_BANK0_BASE_ME + 0x0c + 8 * pin);
+    *ctrl_reg = 3;  // b011 = I2C function
+}

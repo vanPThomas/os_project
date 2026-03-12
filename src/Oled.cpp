@@ -11,11 +11,11 @@ Oled::Oled(i2c_inst_t* i2c_inst, uint sda, uint scl, uint speed, uint8_t addr,
 bool Oled::init() {
     // I2C setup
     i2c_init(i2c_, speed_hz_);
-    gpio_set_function(sda_pin_, GPIO_FUNC_I2C);
-    gpio_set_function(scl_pin_, GPIO_FUNC_I2C);
-    gpio_pull_up(sda_pin_);
-    gpio_pull_up(scl_pin_);
-    sleep_ms(200);
+    HardwareUtil::set_pin_function_i2c(sda_pin_);
+    HardwareUtil::set_pin_function_i2c(scl_pin_);
+    HardwareUtil::set_pin_pullup_enabled(sda_pin_);
+    HardwareUtil::set_pin_pullup_enabled(scl_pin_);
+    HardwareUtil::my_sleep_ms(200);
 
     // Run controller init sequence
     init_sequence();
