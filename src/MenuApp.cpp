@@ -30,11 +30,13 @@ void MenuApp::run()
         bool cursorMoved = false;
         if (btn != IrButton::NONE)
         {
-            if (btn == IrButton::BUTTON_DOWN) {
+            if (btn == IrButton::BUTTON_DOWN)
+            {
                 cursorLocation++;
                 cursorMoved = true;
             }
-            if (btn == IrButton::BUTTON_UP) {
+            if (btn == IrButton::BUTTON_UP)
+            {
                 cursorLocation--;
                 cursorMoved = true;
             }
@@ -47,7 +49,8 @@ void MenuApp::run()
             HardwareUtil::my_sleep_ms(200);
 
             // Handle selection (OK)
-            if (btn == IrButton::BUTTON_OK) {
+            if (btn == IrButton::BUTTON_OK)
+            {
                 okButtonPress();
             }
         }

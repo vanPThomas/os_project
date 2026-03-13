@@ -6,7 +6,8 @@
 #include <cstring>
 #include "HardwareUtil.h"
 
-class Oled {
+class Oled
+{
 public:
     Oled(i2c_inst_t* i2c_inst = i2c0,
          uint sda_pin = 4,
