@@ -51,6 +51,4 @@ namespace HardwareUtil
     {
         return (*(volatile uint32_t *)(SIO_BASE_ME + SIO_GPIO_IN_ME) & GPIO_BIT(pin)) != 0;
     }
-
-
 }

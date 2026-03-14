@@ -150,7 +150,6 @@ void MenuApp::printUptime()
             Font::center_print(display, 3, buf);
             Font::center_print(display, 5, "Any key to exit");
 
-
             last_update = now;
         }
 
@@ -160,7 +159,6 @@ void MenuApp::printUptime()
             menuNeedsRedraw = true;
             break;
         }
-
         HardwareUtil::my_sleep_ms(50);  // light sleep to not burn CPU
     }
 }
