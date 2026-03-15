@@ -1,4 +1,3 @@
-// MenuApp.cpp
 #include "MenuApp.h"
 
 MenuApp::MenuApp()

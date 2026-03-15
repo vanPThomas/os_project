@@ -1,4 +1,3 @@
-#include "pico/stdlib.h"
 #include "MenuApp.h"
 
 int main()
