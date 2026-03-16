@@ -35,6 +35,7 @@ uint64_t HardwareUtil::get_current_us()
     return ((uint64_t)high1 << 32) | low;
 }
 
+// boot timer in hardware doesn't start at 0
 uint64_t HardwareUtil::get_boot_offset_us()
 {
     static uint64_t offset = 0;
@@ -52,11 +53,13 @@ void HardwareUtil::set_pin_function_sio(uint32_t pin)
     *ctrl_reg = 5;  // FUNCSEL = 5 (b101)
 }
 
+// make a pico pin as input pin
 void HardwareUtil::set_pin_as_input(uint32_t pin)
 {
     // Clear output-enable bit → pin becomes high-Z input
     *(volatile uint32_t *)(SIO_BASE_ME + SIO_GPIO_OE_CLR_ME) = GPIO_BIT(pin);
 }
+
 
 void HardwareUtil::set_pin_pullup_enabled(uint32_t pin)
 {
