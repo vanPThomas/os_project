@@ -26,6 +26,8 @@
 // Helper macros (bit operations)
 #define GPIO_BIT(pin)           (1UL << (pin))
 
+#define I2C0_BASE 0x40044000UL
+
 namespace HardwareUtil
 {
     uint64_t get_current_us();
