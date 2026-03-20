@@ -53,4 +53,7 @@ namespace HardwareUtil
     {
         return (*(volatile uint32_t *)(SIO_BASE_ME + SIO_GPIO_IN_ME) & GPIO_BIT(pin)) != 0;
     }
+
+    bool i2c_bare_write(uint8_t addr, const uint8_t* buf, size_t len, bool nostop = false);
+    void i2c_bare_init(uint32_t speed_hz);
 }

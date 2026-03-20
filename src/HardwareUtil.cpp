@@ -91,7 +91,8 @@ void HardwareUtil::set_pin_function_i2c(uint32_t pin)
     *ctrl_reg = 3;  // b011 = I2C function
 }
 
-bool i2c_bare_write(uint8_t addr, const uint8_t* buf, size_t len, bool nostop = false) {
+bool HardwareUtil::i2c_bare_write(uint8_t addr, const uint8_t* buf, size_t len, bool nostop = false)
+{
     volatile uint32_t *ic_tar = (volatile uint32_t *)(I2C0_BASE + 0x04);
     *ic_tar = addr;
 
@@ -108,7 +109,8 @@ bool i2c_bare_write(uint8_t addr, const uint8_t* buf, size_t len, bool nostop = 
     return true; // simplify for now
 }
 
-void i2c_bare_init(uint32_t speed_hz) {
+void HardwareUtil::i2c_bare_init(uint32_t speed_hz)
+{
     // Enable I2C clock in reset controller (if not already)
     // *(volatile uint32_t *)0x4000c000 + 0x0c |= (1u << 5); // RESETS → clr reset for i2c0
 
