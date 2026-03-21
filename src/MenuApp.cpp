@@ -1,7 +1,7 @@
 #include "MenuApp.h"
 
 MenuApp::MenuApp()
-    : display(i2c0, 4, 5, 400000, 0x3C, 128, 64, 132),
+    : display(4, 5, 400000, 0x3C, 128, 64, 132),
       remote(15)
 {
     if (!display.init())
