@@ -1,5 +1,6 @@
 #pragma once
 #include <cstdint>
+#include <cstring>
 
 // Peripheral register base address for the RP2040 hardware timer
 #define TIMER_BASE_ME          0x40054000UL

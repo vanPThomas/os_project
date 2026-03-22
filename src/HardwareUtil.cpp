@@ -91,7 +91,7 @@ void HardwareUtil::set_pin_function_i2c(uint32_t pin)
     *ctrl_reg = 3;  // b011 = I2C function
 }
 
-bool HardwareUtil::i2c_bare_write(uint8_t addr, const uint8_t* buf, size_t len, bool nostop = false)
+bool HardwareUtil::i2c_bare_write(uint8_t addr, const uint8_t* buf, size_t len, bool nostop)
 {
     volatile uint32_t *ic_tar = (volatile uint32_t *)(I2C0_BASE + 0x04);
     *ic_tar = addr;
