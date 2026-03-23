@@ -27,7 +27,41 @@
 // Helper macros (bit operations)
 #define GPIO_BIT(pin)           (1UL << (pin))
 
-#define I2C0_BASE 0x40044000UL
+// ----
+
+#define I2C0_BASE               0x40044000UL
+#define I2C1_BASE               0x40048000UL  // if needed later
+
+// Common registers (offsets from base)
+#define IC_CON                  0x00
+#define IC_TAR                  0x04
+#define IC_ENABLE               0x06
+#define IC_DATA_CMD             0x10
+#define IC_RAW_INTR_STAT        0x34
+#define IC_CLR_INTR             0x40
+#define IC_STATUS               0x08
+#define IC_TXFLR                0x18
+#define IC_RXFLR                0x1c
+#define IC_TXABRT_SOURCE        0x80
+#define IC_CLR_TX_ABRT          0x84
+
+// IC_CON bits
+#define IC_CON_MASTER_MODE      (1u << 0)
+#define IC_CON_SPEED_FAST       (1u << 1)   // 1 = fast mode (400 kHz)
+#define IC_CON_RESTART_EN       (1u << 5)
+#define IC_CON_STOP_DET_IFADDRED (1u << 10)
+
+// IC_STATUS bits
+#define IC_STATUS_TFNF          (1u << 2)   // TX FIFO not full
+#define IC_STATUS_TFE           (1u << 3)   // TX FIFO empty
+#define IC_STATUS_RFNE          (1u << 4)   // RX FIFO not empty
+
+// IC_DATA_CMD bits
+#define IC_DATA_CMD_CMD_WRITE   (0u << 8)
+#define IC_DATA_CMD_CMD_READ    (1u << 8)
+#define IC_DATA_CMD_STOP        (1u << 9)
+
+// -----
 
 namespace HardwareUtil
 {

@@ -91,40 +91,126 @@ void HardwareUtil::set_pin_function_i2c(uint32_t pin)
     *ctrl_reg = 3;  // b011 = I2C function
 }
 
-bool HardwareUtil::i2c_bare_write(uint8_t addr, const uint8_t* buf, size_t len, bool nostop)
-{
-    volatile uint32_t *ic_tar = (volatile uint32_t *)(I2C0_BASE + 0x04);
-    *ic_tar = addr;
+// bool HardwareUtil::i2c_bare_write(uint8_t addr, const uint8_t* buf, size_t len, bool nostop)
+// {
+//     volatile uint32_t *ic_tar = (volatile uint32_t *)(I2C0_BASE + 0x04);
+//     *ic_tar = addr;
 
-    for (size_t i = 0; i < len; ++i) {
-        volatile uint32_t *ic_data_cmd = (volatile uint32_t *)(I2C0_BASE + 0x10);
-        *ic_data_cmd = buf[i] | (i == len-1 && !nostop ? (1 << 9) : 0); // STOP bit on last
+//     for (size_t i = 0; i < len; ++i) {
+//         volatile uint32_t *ic_data_cmd = (volatile uint32_t *)(I2C0_BASE + 0x10);
+//         *ic_data_cmd = buf[i] | (i == len-1 && !nostop ? (1 << 9) : 0); // STOP bit on last
 
-        // Poll TXFIFO not full + wait for transmission
-        while ((*(volatile uint32_t *)(I2C0_BASE + 0x04) & (1 << 2)) == 0) {} // wait TXFIFO not full
-        // Check ACK/NACK via IC_RAW_INTR_STAT, etc.
-    }
+//         // Poll TXFIFO not full + wait for transmission
+//         while ((*(volatile uint32_t *)(I2C0_BASE + 0x04) & (1 << 2)) == 0) {} // wait TXFIFO not full
+//         // Check ACK/NACK via IC_RAW_INTR_STAT, etc.
+//     }
 
-    // Wait for stop condition if needed
-    return true; // simplify for now
-}
+//     // Wait for stop condition if needed
+//     return true; // simplify for now
+// }
+
+// void HardwareUtil::i2c_bare_init(uint32_t speed_hz)
+// {
+//     // Enable I2C clock in reset controller (if not already)
+//     // *(volatile uint32_t *)0x4000c000 + 0x0c |= (1u << 5); // RESETS → clr reset for i2c0
+
+//     volatile uint32_t *ic_con = (volatile uint32_t *)(I2C0_BASE + 0x00);
+//     *ic_con = (1 << 0)   // MASTER_MODE=1
+//             | (0 << 1)   // SPEED=0 (standard) or 1 (fast)
+//             | (1 << 4)   // RX_FIFO_FULL_HLD_CTRL
+//             | (1 << 5);  // RESTART_EN
+
+//     // Set baudrate (example for ~400 kHz at 125 MHz sysclk)
+//     uint32_t period = 125000000 / speed_hz / 2; // rough
+//     *(volatile uint32_t *)(I2C0_BASE + 0x1c) = period; // IC_FS_SCL_HCNT
+//     *(volatile uint32_t *)(I2C0_BASE + 0x20) = period; // IC_FS_SCL_LCNT
+
+//     // Enable I2C
+//     *(volatile uint32_t *)(I2C0_BASE + 0x06) = 1;
+// }
 
 void HardwareUtil::i2c_bare_init(uint32_t speed_hz)
 {
-    // Enable I2C clock in reset controller (if not already)
-    // *(volatile uint32_t *)0x4000c000 + 0x0c |= (1u << 5); // RESETS → clr reset for i2c0
+    // Use I2C0 – change to I2C1_BASE if using i2c1
+    const uint32_t base = I2C0_BASE;
 
-    volatile uint32_t *ic_con = (volatile uint32_t *)(I2C0_BASE + 0x00);
-    *ic_con = (1 << 0)   // MASTER_MODE=1
-            | (0 << 1)   // SPEED=0 (standard) or 1 (fast)
-            | (1 << 4)   // RX_FIFO_FULL_HLD_CTRL
-            | (1 << 5);  // RESTART_EN
+    // Step 1: Release I2C from reset (RESETS register)
+    volatile uint32_t *resets = (volatile uint32_t *)0x4000c000UL;
+    *resets &= ~(1u << 5);   // clear reset for i2c0 (bit 5)
 
-    // Set baudrate (example for ~400 kHz at 125 MHz sysclk)
-    uint32_t period = 125000000 / speed_hz / 2; // rough
-    *(volatile uint32_t *)(I2C0_BASE + 0x1c) = period; // IC_FS_SCL_HCNT
-    *(volatile uint32_t *)(I2C0_BASE + 0x20) = period; // IC_FS_SCL_LCNT
+    // Step 2: Disable I2C before config
+    *(volatile uint32_t *)(base + IC_ENABLE) = 0;
 
-    // Enable I2C
-    *(volatile uint32_t *)(I2C0_BASE + 0x06) = 1;
+    // Step 3: Configure IC_CON (control)
+    volatile uint32_t *ic_con = (volatile uint32_t *)(base + IC_CON);
+    *ic_con = IC_CON_MASTER_MODE
+            | IC_CON_SPEED_FAST          // Fast mode (400 kHz)
+            | IC_CON_RESTART_EN
+            | (1u << 3);                 // 7-bit address mode
+
+    // Step 4: Set baudrate (for 400 kHz at typical 125 MHz sysclk)
+    // Formula from datasheet §4.3.3.1
+    uint32_t clk_hz = 125000000;  // Change if your clk_sys is different
+    uint32_t min_scl_period = clk_hz / speed_hz;
+    uint32_t hcnt = min_scl_period / 2;     // Rough 50% duty
+    uint32_t lcnt = min_scl_period - hcnt;
+
+    *(volatile uint32_t *)(base + 0x1C) = hcnt;  // IC_FS_SCL_HCNT
+    *(volatile uint32_t *)(base + 0x20) = lcnt;  // IC_FS_SCL_LCNT
+
+    // Optional: FIFO thresholds (default 0 is fine for small transfers)
+    // *(volatile uint32_t *)(base + 0x1c) = 0; // IC_TX_TL
+    // *(volatile uint32_t *)(base + 0x20) = 0; // IC_RX_TL
+
+    // Step 5: Enable I2C
+    *(volatile uint32_t *)(base + IC_ENABLE) = 1;
+
+    // Small delay for peripheral to stabilize
+    my_sleep_ms(1);
+}
+
+bool HardwareUtil::i2c_bare_write(uint8_t addr, const uint8_t* buf, size_t len, bool nostop)
+{
+    const uint32_t base = I2C0_BASE;
+
+    // Clear any previous abort/interrupt
+    *(volatile uint32_t *)(base + IC_CLR_INTR) = 1;
+    *(volatile uint32_t *)(base + IC_CLR_TX_ABRT) = 1;
+
+    // Set target address (7-bit)
+    *(volatile uint32_t *)(base + IC_TAR) = addr & 0x7F;
+
+    bool ok = true;
+
+    for (size_t i = 0; i < len; ++i) {
+        uint32_t cmd = buf[i]
+                     | IC_DATA_CMD_CMD_WRITE
+                     | (i == len - 1 && !nostop ? (1u << 9) : 0);  // STOP on last if !nostop
+
+        // Wait until TX FIFO has space
+        while ((*(volatile uint32_t *)(base + IC_STATUS) & IC_STATUS_TFNF) == 0) {}
+
+        *(volatile uint32_t *)(base + IC_DATA_CMD) = cmd;
+
+        // Optional: wait for ACK on each byte (poll TX abort)
+        // Better: wait until TX FIFO empty after last byte
+        if (i == len - 1) {
+            while ((*(volatile uint32_t *)(base + IC_STATUS) & IC_STATUS_TFE) == 0) {}
+        }
+
+        // Check for abort (NACK, etc.)
+        if (*(volatile uint32_t *)(base + IC_RAW_INTR_STAT) & (1u << 3)) {  // TX_ABRT
+            ok = false;
+            *(volatile uint32_t *)(base + IC_CLR_TX_ABRT) = 1;  // clear
+            break;
+        }
+    }
+
+    // Wait for STOP complete if sent
+    if (!nostop) {
+        while ((*(volatile uint32_t *)(base + IC_RAW_INTR_STAT) & (1u << 5)) == 0) {}  // STOP_DET
+        *(volatile uint32_t *)(base + IC_CLR_INTR) = 1;
+    }
+
+    return ok;
 }
