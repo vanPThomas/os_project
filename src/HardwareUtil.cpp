@@ -91,44 +91,6 @@ void HardwareUtil::set_pin_function_i2c(uint32_t pin)
     *ctrl_reg = 3;  // b011 = I2C function
 }
 
-// bool HardwareUtil::i2c_bare_write(uint8_t addr, const uint8_t* buf, size_t len, bool nostop)
-// {
-//     volatile uint32_t *ic_tar = (volatile uint32_t *)(I2C0_BASE + 0x04);
-//     *ic_tar = addr;
-
-//     for (size_t i = 0; i < len; ++i) {
-//         volatile uint32_t *ic_data_cmd = (volatile uint32_t *)(I2C0_BASE + 0x10);
-//         *ic_data_cmd = buf[i] | (i == len-1 && !nostop ? (1 << 9) : 0); // STOP bit on last
-
-//         // Poll TXFIFO not full + wait for transmission
-//         while ((*(volatile uint32_t *)(I2C0_BASE + 0x04) & (1 << 2)) == 0) {} // wait TXFIFO not full
-//         // Check ACK/NACK via IC_RAW_INTR_STAT, etc.
-//     }
-
-//     // Wait for stop condition if needed
-//     return true; // simplify for now
-// }
-
-// void HardwareUtil::i2c_bare_init(uint32_t speed_hz)
-// {
-//     // Enable I2C clock in reset controller (if not already)
-//     // *(volatile uint32_t *)0x4000c000 + 0x0c |= (1u << 5); // RESETS → clr reset for i2c0
-
-//     volatile uint32_t *ic_con = (volatile uint32_t *)(I2C0_BASE + 0x00);
-//     *ic_con = (1 << 0)   // MASTER_MODE=1
-//             | (0 << 1)   // SPEED=0 (standard) or 1 (fast)
-//             | (1 << 4)   // RX_FIFO_FULL_HLD_CTRL
-//             | (1 << 5);  // RESTART_EN
-
-//     // Set baudrate (example for ~400 kHz at 125 MHz sysclk)
-//     uint32_t period = 125000000 / speed_hz / 2; // rough
-//     *(volatile uint32_t *)(I2C0_BASE + 0x1c) = period; // IC_FS_SCL_HCNT
-//     *(volatile uint32_t *)(I2C0_BASE + 0x20) = period; // IC_FS_SCL_LCNT
-
-//     // Enable I2C
-//     *(volatile uint32_t *)(I2C0_BASE + 0x06) = 1;
-// }
-
 void HardwareUtil::i2c_bare_init(uint32_t speed_hz)
 {
     // Use I2C0 – change to I2C1_BASE if using i2c1
