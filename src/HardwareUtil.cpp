@@ -91,88 +91,97 @@ void HardwareUtil::set_pin_function_i2c(uint32_t pin)
     *ctrl_reg = 3;  // b011 = I2C function
 }
 
+// ===================================================================
+// I2C Bare-metal Init (400 kHz)
+// ===================================================================
 void HardwareUtil::i2c_bare_init(uint32_t speed_hz)
 {
-    // Use I2C0 – change to I2C1_BASE if using i2c1
     const uint32_t base = I2C0_BASE;
 
-    // Step 1: Release I2C from reset (RESETS register)
-    volatile uint32_t *resets = (volatile uint32_t *)0x4000c000UL;
-    *resets &= ~(1u << 5);   // clear reset for i2c0 (bit 5)
+    // 1. Release I2C0 from reset
+    volatile uint32_t *reset_reg = (volatile uint32_t *)(RESETS_BASE + RESETS_RESET);
+    *reset_reg &= ~(1u << 5);                    // clear i2c0 reset bit
 
-    // Step 2: Disable I2C before config
+    // Wait for reset to complete
+    volatile uint32_t *reset_done = (volatile uint32_t *)(RESETS_BASE + RESETS_RESET_DONE);
+    while ((*reset_done & (1u << 5)) == 0) {}
+
+    // 2. Disable I2C before configuration
     *(volatile uint32_t *)(base + IC_ENABLE) = 0;
 
-    // Step 3: Configure IC_CON (control)
-    volatile uint32_t *ic_con = (volatile uint32_t *)(base + IC_CON);
-    *ic_con = IC_CON_MASTER_MODE
-            | IC_CON_SPEED_FAST          // Fast mode (400 kHz)
-            | IC_CON_RESTART_EN
-            | (1u << 3);                 // 7-bit address mode
+    // 3. Configure IC_CON
+    *(volatile uint32_t *)(base + IC_CON) =
+        IC_CON_MASTER_MODE |
+        IC_CON_SPEED_FAST |
+        IC_CON_RESTART_EN |
+        IC_CON_7BIT_ADDR;
 
-    // Step 4: Set baudrate (for 400 kHz at typical 125 MHz sysclk)
-    // Formula from datasheet §4.3.3.1
-    uint32_t clk_hz = 125000000;  // Change if your clk_sys is different
-    uint32_t min_scl_period = clk_hz / speed_hz;
-    uint32_t hcnt = min_scl_period / 2;     // Rough 50% duty
-    uint32_t lcnt = min_scl_period - hcnt;
+    // 4. Set baudrate for Fast Mode (~400 kHz)
+    uint32_t clk_hz = 125000000UL;
+    uint32_t period = clk_hz / speed_hz;
 
-    *(volatile uint32_t *)(base + 0x1C) = hcnt;  // IC_FS_SCL_HCNT
-    *(volatile uint32_t *)(base + 0x20) = lcnt;  // IC_FS_SCL_LCNT
+    uint32_t hcnt = (period * 40) / 100;   // ~40% high time
+    uint32_t lcnt = period - hcnt;
 
-    // Optional: FIFO thresholds (default 0 is fine for small transfers)
-    // *(volatile uint32_t *)(base + 0x1c) = 0; // IC_TX_TL
-    // *(volatile uint32_t *)(base + 0x20) = 0; // IC_RX_TL
+    if (hcnt < 8) hcnt = 8;
+    if (lcnt < 8) lcnt = 8;
 
-    // Step 5: Enable I2C
+    *(volatile uint32_t *)(base + 0x1C) = hcnt;   // IC_FS_SCL_HCNT
+    *(volatile uint32_t *)(base + 0x20) = lcnt;   // IC_FS_SCL_LCNT
+
+    // 5. Enable I2C
     *(volatile uint32_t *)(base + IC_ENABLE) = 1;
 
-    // Small delay for peripheral to stabilize
-    my_sleep_ms(1);
+    my_sleep_ms(2);   // stabilization delay
 }
 
+// ===================================================================
+// I2C Bare-metal Write
+// ===================================================================
 bool HardwareUtil::i2c_bare_write(uint8_t addr, const uint8_t* buf, size_t len, bool nostop)
 {
     const uint32_t base = I2C0_BASE;
 
-    // Clear any previous abort/interrupt
-    *(volatile uint32_t *)(base + IC_CLR_INTR) = 1;
+    // Clear previous errors
+    *(volatile uint32_t *)(base + IC_CLR_INTR) = 0xFFFFFFFF;
     *(volatile uint32_t *)(base + IC_CLR_TX_ABRT) = 1;
 
-    // Set target address (7-bit)
+    // Set target address
     *(volatile uint32_t *)(base + IC_TAR) = addr & 0x7F;
 
-    bool ok = true;
+    bool success = true;
 
-    for (size_t i = 0; i < len; ++i) {
-        uint32_t cmd = buf[i]
-                     | IC_DATA_CMD_CMD_WRITE
-                     | (i == len - 1 && !nostop ? (1u << 9) : 0);  // STOP on last if !nostop
+    for (size_t i = 0; i < len; ++i)
+    {
+        uint32_t data_cmd = (uint32_t)buf[i]
+                          | (i == len - 1 && !nostop ? IC_DATA_CMD_STOP : 0);
 
-        // Wait until TX FIFO has space
+        // Wait for TX FIFO not full
         while ((*(volatile uint32_t *)(base + IC_STATUS) & IC_STATUS_TFNF) == 0) {}
 
-        *(volatile uint32_t *)(base + IC_DATA_CMD) = cmd;
+        *(volatile uint32_t *)(base + IC_DATA_CMD) = data_cmd;
 
-        // Optional: wait for ACK on each byte (poll TX abort)
-        // Better: wait until TX FIFO empty after last byte
-        if (i == len - 1) {
+        // After last byte, wait until TX FIFO is empty
+        if (i == len - 1)
+        {
             while ((*(volatile uint32_t *)(base + IC_STATUS) & IC_STATUS_TFE) == 0) {}
         }
 
-        // Check for abort (NACK, etc.)
-        if (*(volatile uint32_t *)(base + IC_RAW_INTR_STAT) & (1u << 3)) {  // TX_ABRT
-            ok = false;
-            *(volatile uint32_t *)(base + IC_CLR_TX_ABRT) = 1;  // clear
+        // Check for NACK / abort
+        if (*(volatile uint32_t *)(base + IC_RAW_INTR_STAT) & (1u << 3))  // TX_ABRT
+        {
+            success = false;
+            *(volatile uint32_t *)(base + IC_CLR_TX_ABRT) = 1;
             break;
         }
     }
 
-    // Wait for STOP complete if sent
-    if (!nostop) {
-        while ((*(volatile uint32_t *)(base + IC_RAW_INTR_STAT) & (1u << 5)) == 0) {}  // STOP_DET
+    // Wait for STOP condition if we sent one
+    if (!nostop)
+    {
+        while ((*(volatile uint32_t *)(base + IC_RAW_INTR_STAT) & (1u << 5)) == 0) {} // STOP_DET
         *(volatile uint32_t *)(base + IC_CLR_INTR) = 1;
     }
 
-    return ok;
+    return success;
 }

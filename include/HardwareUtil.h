@@ -28,11 +28,12 @@
 #define GPIO_BIT(pin)           (1UL << (pin))
 
 // ----
+// ==================== I2C0 / I2C1 Registers ====================
 
 #define I2C0_BASE               0x40044000UL
-#define I2C1_BASE               0x40048000UL  // if needed later
+#define I2C1_BASE               0x40048000UL
 
-// Common registers (offsets from base)
+// Common I2C register offsets
 #define IC_CON                  0x00
 #define IC_TAR                  0x04
 #define IC_ENABLE               0x06
@@ -47,19 +48,20 @@
 
 // IC_CON bits
 #define IC_CON_MASTER_MODE      (1u << 0)
-#define IC_CON_SPEED_FAST       (1u << 1)   // 1 = fast mode (400 kHz)
+#define IC_CON_SPEED_FAST       (1u << 1)     // Fast Mode (400kHz)
 #define IC_CON_RESTART_EN       (1u << 5)
-#define IC_CON_STOP_DET_IFADDRED (1u << 10)
+#define IC_CON_7BIT_ADDR        (0u << 4)     // 7-bit addressing
 
 // IC_STATUS bits
-#define IC_STATUS_TFNF          (1u << 2)   // TX FIFO not full
-#define IC_STATUS_TFE           (1u << 3)   // TX FIFO empty
-#define IC_STATUS_RFNE          (1u << 4)   // RX FIFO not empty
+#define IC_STATUS_TFNF          (1u << 2)     // TX FIFO Not Full
+#define IC_STATUS_TFE           (1u << 3)     // TX FIFO Empty
 
 // IC_DATA_CMD bits
-#define IC_DATA_CMD_CMD_WRITE   (0u << 8)
-#define IC_DATA_CMD_CMD_READ    (1u << 8)
 #define IC_DATA_CMD_STOP        (1u << 9)
+
+#define RESETS_BASE             0x4000c000UL
+#define RESETS_RESET            0x0
+#define RESETS_RESET_DONE       0x8
 
 // -----
 
