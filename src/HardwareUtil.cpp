@@ -91,9 +91,7 @@ void HardwareUtil::set_pin_function_i2c(uint32_t pin)
     *ctrl_reg = 3;  // b011 = I2C function
 }
 
-// ===================================================================
 // I2C Bare-metal Init (400 kHz)
-// ===================================================================
 void HardwareUtil::i2c_bare_init(uint32_t speed_hz)
 {
     const uint32_t base = I2C0_BASE;
@@ -135,9 +133,7 @@ void HardwareUtil::i2c_bare_init(uint32_t speed_hz)
     my_sleep_ms(2);   // stabilization delay
 }
 
-// ===================================================================
 // I2C Bare-metal Write
-// ===================================================================
 bool HardwareUtil::i2c_bare_write(uint8_t addr, const uint8_t* buf, size_t len, bool nostop)
 {
     const uint32_t base = I2C0_BASE;
