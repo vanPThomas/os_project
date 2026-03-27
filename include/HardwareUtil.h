@@ -28,7 +28,7 @@
 #define GPIO_BIT(pin)           (1UL << (pin))
 
 // ----
-// ==================== I2C0 / I2C1 Registers ====================
+// I2C0 / I2C1 Registers
 
 #define I2C0_BASE               0x40044000UL
 #define I2C1_BASE               0x40048000UL
