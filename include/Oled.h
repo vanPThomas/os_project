@@ -1,7 +1,7 @@
 #pragma once
 
-// #include "pico/stdlib.h"
-// #include "hardware/i2c.h"
+#include "pico/stdlib.h"
+#include "hardware/i2c.h"
 #include <cstdint>
 #include <cstring>
 #include <cstddef>  // for size_t
@@ -39,7 +39,7 @@ public:
     uint16_t get_height() const { return height_; }
 
 private:
-    // i2c_inst_t* i2c_;
+    i2c_inst_t* i2c_;
     uint32_t sda_pin_;
     uint32_t scl_pin_;
     uint32_t speed_hz_;

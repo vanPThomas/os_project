@@ -20,7 +20,7 @@ Oled::Oled(uint32_t sda_pin,
 bool Oled::init()
 {
     // I2C setup
-    // i2c_init(i2c_, speed_hz_);
+    i2c_init(i2c_, speed_hz_);
     HardwareUtil::i2c_bare_init(speed_hz_);
     HardwareUtil::set_pin_function_i2c(sda_pin_);
     HardwareUtil::set_pin_function_i2c(scl_pin_);
@@ -66,8 +66,8 @@ void Oled::set_cursor(uint8_t col, uint8_t page)
 bool Oled::cmd(uint8_t cmd)
 {
     uint8_t buf[2] = {0x00, cmd};
-    // return i2c_write_blocking(i2c_, addr_, buf, 2, false) == 2;
-    return HardwareUtil::i2c_bare_write(addr_, buf, 2, false) == 2;
+    return i2c_write_blocking(i2c_, addr_, buf, 2, false) == 2;
+    // return HardwareUtil::i2c_bare_write(addr_, buf, 2, false) == 2;
 }
 
 bool Oled::data(const uint8_t* buf, size_t len)
@@ -75,8 +75,8 @@ bool Oled::data(const uint8_t* buf, size_t len)
     uint8_t header[len + 1];
     header[0] = 0x40;
     std::memcpy(header + 1, buf, len);
-    // return i2c_write_blocking(i2c_, addr_, header, len + 1, false) == (int)(len + 1);
-    return HardwareUtil::i2c_bare_write(addr_, header, len + 1, false) == (int)(len + 1);
+    return i2c_write_blocking(i2c_, addr_, header, len + 1, false) == (int)(len + 1);
+    // return HardwareUtil::i2c_bare_write(addr_, header, len + 1, false) == (int)(len + 1);
 }
 
 void Oled::clear()
