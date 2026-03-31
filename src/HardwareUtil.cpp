@@ -83,7 +83,7 @@ void HardwareUtil::init_input_pin_with_pullup(uint32_t pin)
     set_pin_pullup_enabled(pin);
 }
 
-// ====================== PIN FUNCTIONS ======================
+// PIN FUNCTIONS
 
 void HardwareUtil::set_pin_function_i2c(uint32_t pin)
 {
@@ -109,8 +109,7 @@ void HardwareUtil::set_pin_pullup_enabled(uint32_t pin)
     *pads_reg &= ~(1u << 2);  // PDN = 0  (pull-down disable)
 }
 
-// ====================== I2C INIT ======================
-
+// I2C INIT
 void HardwareUtil::i2c_bare_init(uint32_t speed_hz)
 {
     const uint32_t base = I2C0_BASE;        // GPIO 4/5 → I2C0
@@ -153,8 +152,7 @@ void HardwareUtil::i2c_bare_init(uint32_t speed_hz)
     my_sleep_ms(10);
 }
 
-// ====================== I2C WRITE ======================
-
+// I2C WRITE
 int HardwareUtil::i2c_bare_write(uint8_t addr, const uint8_t* buf, size_t len, bool nostop)
 {
     if (len == 0) return 0;
