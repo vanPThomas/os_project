@@ -75,6 +75,7 @@
 
 namespace HardwareUtil
 {
+    // Time functions
     uint64_t get_current_us();
     void my_sleep_ms(uint32_t millisec);
     uint64_t get_boot_offset_us();
